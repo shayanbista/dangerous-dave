@@ -15,8 +15,8 @@ let TILE_SIZE = 50;
 //   left: { hold: false },
 // };
 
-const solidTiles: SolidTile[] = [];
-const edibleTiles: EdibleTile[] = [];
+export const solidTiles: SolidTile[] = [];
+export const edibleTiles: EdibleTile[] = [];
 
 // export function startGame(newMap: (string | null)[][]) {
 //   map = newMap;

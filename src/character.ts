@@ -140,6 +140,8 @@
 
 import { GameEntity } from "./gameEntity";
 import { Tile } from "./tile";
+import { solidTiles } from "./game";
+import { TILE_SIZE } from "./utils";
 
 interface InputKeys {
   right: { hold: boolean };
@@ -260,10 +262,9 @@ export class Character extends GameEntity {
       this.posY += this.velY;
     }
 
-    // this.handleCollision();
+    this.handleCollision();
   }
 
-  // Uncomment and implement collision handling as needed
   // handleCollision() {
   //   if (this.isClipping("left")) {
   //     this.posX += Tile.size - this.width / 2;
@@ -278,4 +279,37 @@ export class Character extends GameEntity {
   //     this.velY = 0;
   //   }
   // }
+
+  handleCollision() {
+    if (this.isClipping("left")) {
+    } else if (this.isClipping("right")) {
+      console.log("clipping has occured");
+    }
+    if (this.isClipping("up")) {
+      console.log("clipping has occured");
+    }
+    if (this.isClipping("down")) {
+      console.log("clipping has occured");
+    }
+  }
+
+  isClipping(direction: string): boolean {
+    const tileSize = TILE_SIZE;
+    const tiles = solidTiles;
+
+    for (let tile of tiles) {
+      const tileX = tile.x * tileSize;
+      const tileY = tile.y * tileSize;
+
+      if (
+        this.posX < tileX + tileSize &&
+        this.posX + this.width > tileX &&
+        this.posY < tileY + tileSize &&
+        this.posY + this.height > tileY
+      ) {
+        return true;
+      }
+    }
+    return false;
+  }
 }

@@ -1,5 +1,5 @@
-import { Character } from "./character";
-import { Tile } from "./tile";
+// import { Character } from "./character";
+// import { Tile } from "./tile";
 // import { Sprite } from "./SolidTile";
 
 // export function isColliding(a: Character, b: Sprite): boolean {
