@@ -1,4 +1,4 @@
-import { Sprite } from "./sprite";
+import { SolidTile } from "./SolidTile";
 import { LEVEL1_MAP } from "./levels";
 import { startGame } from "./game";
 
@@ -44,7 +44,7 @@ export function initializeMapEditor() {
     row.map((tile) => (tile === " " ? null : tile))
   );
 
-  // Load the tileset image
+  // Loading the tileset image
   const tilesetImage = new Image();
   tilesetImage.src = "assets/sprites/tileset.png";
 
@@ -121,7 +121,7 @@ export function initializeMapEditor() {
           [x, y] = [0, 0];
           break;
       }
-      const sprite = new Sprite(x, y);
+      const sprite = new SolidTile(x, y, 0, 0);
       const tileCanvas = document.createElement("canvas");
       tileCanvas.width = TILE_SIZE;
       tileCanvas.height = TILE_SIZE;
@@ -169,7 +169,7 @@ export function initializeMapEditor() {
       mapCanvas.height - DRAW_SIZE,
       mapCanvas.width,
       DRAW_SIZE
-    ); 
+    );
     mapCtx.fillStyle = "white";
     mapCtx.font = "bold 16px Arial";
     mapCtx.fillText(
@@ -235,7 +235,7 @@ export function initializeMapEditor() {
           [spriteX, spriteY] = [0, 0];
           break;
       }
-      const sprite = new Sprite(spriteX, spriteY, TILE_SIZE, TILE_SIZE);
+      const sprite = new SolidTile(spriteX, spriteY, TILE_SIZE, TILE_SIZE);
       sprite.draw(mapCtx, x, y, DRAW_SIZE, DRAW_SIZE);
     }
   }
