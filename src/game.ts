@@ -6,8 +6,8 @@ import { EdibleTile } from "./edibleTIle";
 import { TILE_SIZE } from "./constant";
 
 let gameCanvas: HTMLCanvasElement;
-let gameCtx: CanvasRenderingContext2D;
-let map: (string | null)[][];
+export let gameCtx: CanvasRenderingContext2D;
+export let map: (string | null)[][];
 let dave: Character;
 
 export const solidTiles: SolidTile[] = [];
@@ -21,7 +21,6 @@ export function startGame(newMap: (string | null)[][]) {
 
   initializeTiles(map);
 
-  // Find Dave's starting position
   for (let y = 0; y < map.length; y++) {
     for (let x = 0; x < map[y].length; x++) {
       if (map[y][x] === "DA") {
@@ -91,7 +90,7 @@ function initializeTiles(map: (string | null)[][]) {
             break;
           case "D":
             [spriteX, spriteY] = [0, 1];
-            type = "pickabl";
+            type = "pickable";
             break;
           case "RD":
             [spriteX, spriteY] = [1, 1];
@@ -163,7 +162,7 @@ function initializeTiles(map: (string | null)[][]) {
 }
 
 function renderGame() {
-  gameCtx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
+  // gameCtx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
   renderTiles();
   renderDave(dave.posX, dave.posY);
 }
@@ -291,6 +290,8 @@ function renderDave(posX: number, posY: number) {
 }
 
 function gameLoop() {
+  gameCtx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
+
   dave.update();
   renderGame();
   window.requestAnimationFrame(gameLoop);

@@ -3,7 +3,7 @@ import { Tile } from "./tile";
 import { solidTiles } from "./game";
 import { SolidTile } from "./SolidTile";
 import { TILE_SIZE } from "./constant";
-
+import { gameCtx } from "./game";
 interface InputKeys {
   right: { hold: boolean };
   left: { hold: boolean };
@@ -26,28 +26,6 @@ function getGridCellIndex(
   };
 }
 
-function createSolidTileGrid(solidTiles: SolidTile[]): Grid {
-  const grid: Grid = {};
-
-  for (let tile of solidTiles) {
-    const { cellX, cellY } = getGridCellIndex(
-      tile.x * TILE_SIZE,
-      tile.y * TILE_SIZE
-    );
-
-    if (!grid[cellX]) {
-      grid[cellX] = {};
-    }
-    if (!grid[cellX][cellY]) {
-      grid[cellX][cellY] = [];
-    }
-
-    grid[cellX][cellY].push(tile);
-  }
-
-  return grid;
-}
-
 export class Character extends GameEntity {
   velX: number;
   velY: number;
@@ -59,10 +37,9 @@ export class Character extends GameEntity {
   spriteImage: HTMLImageElement;
   keys: InputKeys;
   gravity: number;
-  private readonly GRAVITY = 0.4;
-  // private readonly MAX_FALL_SPEED = 10;
-  private readonly JUMP_SPEED = -15;
+  private JUMP_SPEED = -15;
   grounded: boolean = false;
+  colliding: boolean = false;
 
   constructor(game: any, posX: number, posY: number) {
     super(game, posX, posY, Tile.size - 4, Tile.size);
@@ -73,6 +50,7 @@ export class Character extends GameEntity {
     this.jumpTarget = 0;
     this.animationFrame = 0;
     this.gravity = 0.2;
+    this.colliding = false;
 
     this.spriteImage = new Image();
     this.spriteImage.src = "assets/sprites/tileset.png";
@@ -150,10 +128,11 @@ export class Character extends GameEntity {
 
   update() {
     const speed = 2.5;
+    console.log("grounded", this.grounded);
+    if (this.grounded == false) {
+      this.velY += 0.04;
+    }
 
-    // if (this.grounded == false) {
-
-    // }
     this.posY += this.velY;
 
     if (this.keys.left.hold) {
@@ -168,7 +147,6 @@ export class Character extends GameEntity {
 
     if (this.jumping) {
       this.posY += this.velY;
-      this.velY += 0.04;
       this.canJump = false;
       this.grounded = false;
     }
@@ -177,13 +155,15 @@ export class Character extends GameEntity {
   }
 
   handleCollision() {
+    let currentPosition = getGridCellIndex(this.posX, this.posY);
+    console.log("currentposition", currentPosition);
     const playerRect = {
-      left: this.posX + 10,
-      right: this.posX + TILE_SIZE + 5,
-      top: this.posY + 10,
+      left: this.posX + 20,
+      right: this.posX + TILE_SIZE - 20,
+      top: this.posY + 5,
       bottom: this.posY + TILE_SIZE - 5,
     };
-
+    this.grounded = false;
     for (let tile of solidTiles) {
       const tileRect = {
         left: tile.x,
@@ -191,35 +171,63 @@ export class Character extends GameEntity {
         top: tile.y,
         bottom: tile.y + TILE_SIZE,
       };
+      console.log(
+        checkAdjacentTile(
+          currentPosition.cellX,
+          currentPosition.cellY,
+          tile.x / TILE_SIZE,
+          tile.y / TILE_SIZE
+        )
+      );
+      const groundCheckRect = {
+        left: this.posX + 20,
+        right: this.posX + TILE_SIZE - 20,
+        top: this.posY + TILE_SIZE - 10,
+        bottom: this.posY + TILE_SIZE + 10,
+      };
 
+      this.grounded = isColliding(groundCheckRect, tileRect)
+        ? true
+        : this.grounded;
+      if (isColliding(groundCheckRect, tileRect)) console.log(this.grounded);
+      gameCtx.fillStyle = "red";
+      gameCtx.fillRect(
+        groundCheckRect.left - 20,
+        groundCheckRect.top,
+        TILE_SIZE,
+        20
+      );
+      gameCtx.fillStyle = "blue";
+      gameCtx.fillRect(
+        tileRect.left,
+        tileRect.top,
+        TILE_SIZE + 10,
+        TILE_SIZE + 10
+      );
       if (isColliding(playerRect, tileRect)) {
         console.log("Collision detected:", tile);
         if (playerRect.bottom > tileRect.top && playerRect.top < tileRect.top) {
+          console.log("collision bottom detected");
           this.posY = tileRect.top - TILE_SIZE;
           this.velY = 0;
           this.jumping = false;
-          this.grounded = true;
-          console.log("bottom collision");
         } else if (
           playerRect.top < tileRect.bottom &&
           playerRect.bottom > tileRect.bottom
         ) {
-          console.log("collision at top");
           this.posY = tileRect.bottom;
           this.velY = 0;
-          this.grounded = false;
         } else if (
           playerRect.right > tileRect.left &&
           playerRect.left < tileRect.left
         ) {
-          console.log("collision at right");
-          this.grounded = false;
+          this.colliding = true;
           this.posX = tileRect.left - TILE_SIZE - 0.01;
         } else if (
           playerRect.left < tileRect.right &&
           playerRect.right > tileRect.right
         ) {
-          this.grounded = false;
+          this.colliding = true;
           this.posX = tileRect.right - 0.01;
         }
       }
@@ -227,6 +235,7 @@ export class Character extends GameEntity {
   }
 }
 
+// TODO change the type of the rectangle
 function isColliding(rect1: any, rect2: any): boolean {
   return (
     rect1.left < rect2.right &&
@@ -234,4 +243,13 @@ function isColliding(rect1: any, rect2: any): boolean {
     rect1.top < rect2.bottom &&
     rect1.bottom > rect2.top
   );
+}
+
+function checkAdjacentTile(x: number, y: number, tileX: number, tileY: number) {
+  return {
+    posX: x,
+    posy: y,
+    tilex: tileX,
+    tiley: tileY,
+  };
 }

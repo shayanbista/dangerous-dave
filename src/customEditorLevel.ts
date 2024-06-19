@@ -44,7 +44,7 @@ export function initializeMapEditor() {
     row.map((tile) => (tile === " " ? null : tile))
   );
 
-  // Loading the tileset image
+
   const tilesetImage = new Image();
   tilesetImage.src = "assets/sprites/tileset.png";
 

@@ -1,4 +1,3 @@
-// constants.ts
 export const TILE_SIZE = 50;
 export const DRAW_SIZE = 50;
 
