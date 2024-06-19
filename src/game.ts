@@ -91,7 +91,7 @@ function initializeTiles(map: (string | null)[][]) {
             break;
           case "D":
             [spriteX, spriteY] = [0, 1];
-            type = "solid";
+            type = "pickable";
             break;
           case "RD":
             [spriteX, spriteY] = [1, 1];

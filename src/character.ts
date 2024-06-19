@@ -1,4 +1,3 @@
-
 import { GameEntity } from "./gameEntity";
 import { Tile } from "./tile";
 import { solidTiles } from "./game";
@@ -11,6 +10,12 @@ interface InputKeys {
   up: { hold: boolean };
 }
 
+interface Grid {
+  [key: number]: {
+    [key: number]: SolidTile[];
+  };
+}
+
 function getGridCellIndex(
   x: number,
   y: number
@@ -19,6 +24,28 @@ function getGridCellIndex(
     cellX: Math.floor(x / TILE_SIZE),
     cellY: Math.floor(y / TILE_SIZE),
   };
+}
+
+function createSolidTileGrid(solidTiles: SolidTile[]): Grid {
+  const grid: Grid = {};
+
+  for (let tile of solidTiles) {
+    const { cellX, cellY } = getGridCellIndex(
+      tile.x * TILE_SIZE,
+      tile.y * TILE_SIZE
+    );
+
+    if (!grid[cellX]) {
+      grid[cellX] = {};
+    }
+    if (!grid[cellX][cellY]) {
+      grid[cellX][cellY] = [];
+    }
+
+    grid[cellX][cellY].push(tile);
+  }
+
+  return grid;
 }
 
 export class Character extends GameEntity {
@@ -30,6 +57,10 @@ export class Character extends GameEntity {
   animationFrame: number;
   spriteImage: HTMLImageElement;
   keys: InputKeys;
+  gravity: number;
+  private readonly GRAVITY = 0.4;
+  // private readonly MAX_FALL_SPEED = 10;
+  private readonly JUMP_SPEED = -15;
 
   constructor(game: any, posX: number, posY: number) {
     super(game, posX, posY, Tile.size - 4, Tile.size);
@@ -39,20 +70,21 @@ export class Character extends GameEntity {
     this.jumping = false;
     this.jumpTarget = 0;
     this.animationFrame = 0;
-
-    this.keys = {
-      up: { hold: false },
-      right: { hold: false },
-      left: { hold: false },
-    };
+    this.gravity = 0.2;
 
     this.spriteImage = new Image();
     this.spriteImage.src = "assets/sprites/tileset.png";
 
-    this.initInput(this.keys);
+    this.keys = {
+      right: { hold: false },
+      left: { hold: false },
+      up: { hold: false },
+    };
+
+    this.initializeControls(this.keys);
   }
 
-  initInput(keys: InputKeys) {
+  initializeControls(keys: InputKeys) {
     window.addEventListener("keydown", (e) => {
       if (e.key === "ArrowRight") {
         keys.right.hold = true;
@@ -62,8 +94,8 @@ export class Character extends GameEntity {
         keys.left.hold = true;
         this.direction = -1;
         this.animationFrame = (this.animationFrame + 1) % 4;
-      } else if (e.key === "ArrowUp" && !this.jumping) {
-        this.velY = -15;
+      } else if (e.key === "ArrowUp") {
+        this.velY -= 2;
         this.jumping = true;
       }
     });
@@ -73,6 +105,9 @@ export class Character extends GameEntity {
         keys.right.hold = false;
       } else if (e.key === "ArrowLeft") {
         keys.left.hold = false;
+      } else if (e.key === "ArrowUp" && !this.jumping) {
+        this.velY = this.JUMP_SPEED;
+        this.jumping = true;
       }
     });
   }
@@ -125,30 +160,62 @@ export class Character extends GameEntity {
 
     if (this.jumping) {
       this.posY += this.velY;
+      console.log("jumping");
     }
 
     this.handleCollision();
   }
 
   handleCollision() {
-    const playerTilePosX = Math.floor(this.posX / TILE_SIZE);
-    const playerTilePosY = Math.floor(this.posY / TILE_SIZE);
+    const playerRect = {
+      left: this.posX + 10,
+      right: this.posX + TILE_SIZE + 5,
+      top: this.posY + 10,
+      bottom: this.posY + TILE_SIZE - 5,
+    };
 
     for (let tile of solidTiles) {
-      const tilePosX = Math.floor(tile.x / TILE_SIZE);
-      const tilePosY = Math.floor(tile.y / TILE_SIZE);
+      const tileRect = {
+        left: tile.x,
+        right: tile.x + TILE_SIZE,
+        top: tile.y,
+        bottom: tile.y + TILE_SIZE,
+      };
 
-      if (playerTilePosX === tilePosX && playerTilePosY === tilePosY) {
-        this.velX = 0;
-        this.velY = 0;
-        console.log("collision detected");
-
-        // Snap the player to the nearest tile position
-        this.posX = tile.x;
-        this.posY = tile.y;
-
-        return;
+      if (isColliding(playerRect, tileRect)) {
+        if (playerRect.bottom > tileRect.top && playerRect.top < tileRect.top) {
+          this.posY = tileRect.top - TILE_SIZE;
+          this.velY = 0;
+          this.jumping = false;
+        } else if (
+          playerRect.top < tileRect.bottom &&
+          playerRect.bottom > tileRect.bottom
+        ) {
+          console.log("collision at top");
+          this.posY = tileRect.bottom;
+          this.velY = 0;
+        } else if (
+          playerRect.right > tileRect.left &&
+          playerRect.left < tileRect.left
+        ) {
+          console.log("collision at right");
+          this.posX = tileRect.left - TILE_SIZE - 0.01;
+        } else if (
+          playerRect.left < tileRect.right &&
+          playerRect.right > tileRect.right
+        ) {
+          this.posX = tileRect.right - 0.01;
+        }
       }
     }
   }
+}
+
+function isColliding(rect1: any, rect2: any): boolean {
+  return (
+    rect1.left < rect2.right &&
+    rect1.right > rect2.left &&
+    rect1.top < rect2.bottom &&
+    rect1.bottom > rect2.top
+  );
 }
