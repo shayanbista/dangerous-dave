@@ -53,6 +53,7 @@ export class Character extends GameEntity {
   velY: number;
   direction: number;
   jumping: boolean;
+  canJump: boolean = true;
   jumpTarget: number;
   animationFrame: number;
   spriteImage: HTMLImageElement;
@@ -61,6 +62,7 @@ export class Character extends GameEntity {
   private readonly GRAVITY = 0.4;
   // private readonly MAX_FALL_SPEED = 10;
   private readonly JUMP_SPEED = -15;
+  grounded: boolean = false;
 
   constructor(game: any, posX: number, posY: number) {
     super(game, posX, posY, Tile.size - 4, Tile.size);
@@ -97,6 +99,7 @@ export class Character extends GameEntity {
       } else if (e.key === "ArrowUp") {
         this.velY -= 2;
         this.jumping = true;
+        this.canJump = false;
       }
     });
 
@@ -147,8 +150,17 @@ export class Character extends GameEntity {
 
   update() {
     const speed = 2.5;
-    if (this.velY != 0) {
-      this.velY += 0.01;
+
+    console.log("grounded", this.grounded);
+
+    if (this.grounded == false) {
+      this.velY += 0.04;
+    }
+    this.posY += this.velY;
+
+    if (this.keys.left.hold) {
+      this.posX -= speed;
+      this.direction = -1;
     }
 
     if (this.keys.right.hold) {
@@ -156,14 +168,10 @@ export class Character extends GameEntity {
       this.direction = 1;
     }
 
-    if (this.keys.left.hold) {
-      this.posX -= speed;
-      this.direction = -1;
-    }
-
     if (this.jumping) {
       this.posY += this.velY;
-      console.log("jumping");
+      this.canJump = false;
+      this.grounded = false;
     }
 
     this.handleCollision();
@@ -186,10 +194,13 @@ export class Character extends GameEntity {
       };
 
       if (isColliding(playerRect, tileRect)) {
+        console.log("Collision detected:", tile);
         if (playerRect.bottom > tileRect.top && playerRect.top < tileRect.top) {
           this.posY = tileRect.top - TILE_SIZE;
           this.velY = 0;
           this.jumping = false;
+          this.grounded = true;
+          console.log("bottom collision");
         } else if (
           playerRect.top < tileRect.bottom &&
           playerRect.bottom > tileRect.bottom
@@ -197,16 +208,19 @@ export class Character extends GameEntity {
           console.log("collision at top");
           this.posY = tileRect.bottom;
           this.velY = 0;
+          this.grounded = false;
         } else if (
           playerRect.right > tileRect.left &&
           playerRect.left < tileRect.left
         ) {
           console.log("collision at right");
+          this.grounded = false;
           this.posX = tileRect.left - TILE_SIZE - 0.01;
         } else if (
           playerRect.left < tileRect.right &&
           playerRect.right > tileRect.right
         ) {
+          this.grounded = false;
           this.posX = tileRect.right - 0.01;
         }
       }
