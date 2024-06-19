@@ -151,11 +151,9 @@ export class Character extends GameEntity {
   update() {
     const speed = 2.5;
 
-    console.log("grounded", this.grounded);
+    // if (this.grounded == false) {
 
-    if (this.grounded == false) {
-      this.velY += 0.04;
-    }
+    // }
     this.posY += this.velY;
 
     if (this.keys.left.hold) {
@@ -170,6 +168,7 @@ export class Character extends GameEntity {
 
     if (this.jumping) {
       this.posY += this.velY;
+      this.velY += 0.04;
       this.canJump = false;
       this.grounded = false;
     }
