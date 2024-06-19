@@ -9,6 +9,7 @@ export class EdibleTile {
   public static image: HTMLImageElement;
   public x: number;
   public y: number;
+  consumed: boolean;
 
   constructor(
     i: number,
@@ -26,12 +27,14 @@ export class EdibleTile {
     this.sy = j * this.size;
     this.x = x;
     this.y = y;
+    this.consumed = false;
 
     if (!EdibleTile.image) {
       EdibleTile.image = new Image();
       EdibleTile.image.src = "assets/sprites/tileset.png";
     }
   }
+
 
   draw(
     ctx: CanvasRenderingContext2D,

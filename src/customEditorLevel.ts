@@ -1,6 +1,6 @@
 import { SolidTile } from "./SolidTile";
 import { LEVEL1_MAP } from "./levels";
-import { startGame } from "./game";
+import { Game } from "./game";
 
 export function initializeMapEditor() {
   const TILE_SIZE = 64;
@@ -44,7 +44,7 @@ export function initializeMapEditor() {
     row.map((tile) => (tile === " " ? null : tile))
   );
 
-
+  // Loading the tileset image
   const tilesetImage = new Image();
   tilesetImage.src = "assets/sprites/tileset.png";
 
@@ -322,7 +322,8 @@ export function initializeMapEditor() {
     }
     document.getElementById("editor")!.style.display = "none";
     document.getElementById("gameCanvas")!.style.display = "block";
-    startGame(map); // Start the game with the saved map
+    // startGame(map); // Start the game with the saved map
+    new Game(map);
   }
 
   document.getElementById("editor")!.style.display = "block";
