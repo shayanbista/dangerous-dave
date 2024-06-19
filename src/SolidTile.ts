@@ -1,13 +1,13 @@
-
 export class SolidTile {
   private size: number;
   private sw: number;
   private sh: number;
   private sx: number;
   private sy: number;
- public static image: HTMLImageElement;
+  public static image: HTMLImageElement;
   public x: number;
   public y: number;
+  static solidTiles: SolidTile[] = [];
 
   constructor(
     i: number,
@@ -51,5 +51,4 @@ export class SolidTile {
       dh
     );
   }
- 
 }

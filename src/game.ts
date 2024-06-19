@@ -3,52 +3,15 @@ import { SolidTile } from "./SolidTile";
 import { Character } from "./character";
 import { EdibleTile } from "./edibleTIle";
 
+import { TILE_SIZE } from "./constant";
+
 let gameCanvas: HTMLCanvasElement;
 let gameCtx: CanvasRenderingContext2D;
 let map: (string | null)[][];
 let dave: Character;
-let TILE_SIZE = 50;
-
-// let keys = {
-//   up: { hold: false },
-//   right: { hold: false },
-//   left: { hold: false },
-// };
 
 export const solidTiles: SolidTile[] = [];
 export const edibleTiles: EdibleTile[] = [];
-
-// export function startGame(newMap: (string | null)[][]) {
-//   map = newMap;
-//   gameCanvas = document.getElementById("gameCanvas") as HTMLCanvasElement;
-//   gameCtx = gameCanvas.getContext("2d")!;
-//   gameCanvas.style.backgroundColor = "black";
-
-//   // Find Dave's starting position
-//   for (let y = 0; y < map.length; y++) {
-//     for (let x = 0; x < map[y].length; x++) {
-//       if (map[y][x] === "DA") {
-//         dave = new Character(
-//           {
-//             getTile,
-//             input: {
-//               keys,
-//             },
-//           },
-//           x * TILE_SIZE,
-//           y * TILE_SIZE
-//         );
-
-//         break;
-//       }
-//     }
-//   }
-
-//   renderGame();
-//   window.addEventListener("keydown", handleInput);
-//   window.addEventListener("keyup", stopInput);
-//   window.requestAnimationFrame(gameLoop);
-// }
 
 export function startGame(newMap: (string | null)[][]) {
   map = newMap;
@@ -56,7 +19,6 @@ export function startGame(newMap: (string | null)[][]) {
   gameCtx = gameCanvas.getContext("2d")!;
   gameCanvas.style.backgroundColor = "black";
 
-  // Initialize tiles once
   initializeTiles(map);
 
   // Find Dave's starting position
@@ -198,11 +160,8 @@ function initializeTiles(map: (string | null)[][]) {
       }
     }
   }
-
-  console.log("Solid tiles count:", solidTiles.length);
-  console.log("Edible tiles count:", edibleTiles.length);
 }
-// TODO(Clear canvas is not working)
+
 function renderGame() {
   gameCtx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
   renderTiles();

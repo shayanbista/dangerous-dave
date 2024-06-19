@@ -1,4 +1,6 @@
+import { solidTiles } from "./game";
 import { Tile } from "./tile";
+
 
 export class GameEntity {
   game: any;
@@ -29,6 +31,10 @@ export class GameEntity {
       bottom: this.posY + this.height,
     };
     return edges;
+  }
+
+  isColliding() {
+    console.log
   }
 
   // getCorners() {
