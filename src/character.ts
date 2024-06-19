@@ -147,6 +147,9 @@ export class Character extends GameEntity {
 
   update() {
     const speed = 2.5;
+    if (this.velY != 0) {
+      this.velY += 0.01;
+    }
 
     if (this.keys.right.hold) {
       this.posX += speed;
