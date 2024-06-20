@@ -1,6 +1,7 @@
 import { SolidTile } from "./SolidTile";
+import { Tile } from "./tile";
 
-export class EdibleTile {
+export class EdibleTile extends Tile {
   private size: number;
   private sw: number;
   private sh: number;
@@ -10,15 +11,18 @@ export class EdibleTile {
   public x: number;
   public y: number;
   consumed: boolean;
+  value: number;
 
   constructor(
     i: number,
     j: number,
     x: number,
     y: number,
+    type: string | "edible",
     sw?: number,
     sh?: number
   ) {
+    super(type);
     this.size = 64;
     this.sw = sw || this.size;
     this.sh = sh || this.size;
@@ -27,6 +31,7 @@ export class EdibleTile {
     this.sy = j * this.size;
     this.x = x;
     this.y = y;
+    this.value = 0;
     this.consumed = false;
 
     if (!EdibleTile.image) {
@@ -34,7 +39,6 @@ export class EdibleTile {
       EdibleTile.image.src = "assets/sprites/tileset.png";
     }
   }
-
 
   draw(
     ctx: CanvasRenderingContext2D,
@@ -54,5 +58,9 @@ export class EdibleTile {
       dw,
       dh
     );
+  }
+
+  scorevalue() {
+    this.value = Tile.getScoreValue(this.type);
   }
 }

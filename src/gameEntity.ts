@@ -1,4 +1,3 @@
-import { TILE_SIZE } from "./constant";
 import { SolidTile } from "./SolidTile";
 import { EdibleTile } from "./edibleTIle";
 

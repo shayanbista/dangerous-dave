@@ -4,11 +4,14 @@ import { TILE_SIZE } from "./constant";
 import { SolidTile } from "./SolidTile";
 import { solidTiles } from "./constant";
 import { edibleTiles } from "./constant";
+import { Score } from "./score";
+
 class Game {
   private gameCanvas: HTMLCanvasElement;
   private gameCtx: CanvasRenderingContext2D;
   private map: (string | null)[][];
   private dave: Character;
+  public score: Score | undefined;
 
   constructor(map: (string | null)[][]) {
     this.gameCanvas = document.getElementById(
@@ -16,6 +19,7 @@ class Game {
     ) as HTMLCanvasElement;
     this.gameCtx = this.gameCanvas.getContext("2d")!;
     this.gameCanvas.style.background = "black";
+    this.score = new Score(this.gameCtx);
 
     this.map = map;
     this.dave = new Character(0, 0);
@@ -23,10 +27,6 @@ class Game {
   }
 
   private initializeGame() {
-    this.gameCtx.clearRect(0, 0, this.gameCanvas.height, this.gameCanvas.width);
-    this.gameCtx.fillStyle = "gray";
-    this.gameCtx.fillRect(0, 0, 1000, 200);
-    this.gameCtx = this.gameCanvas.getContext("2d")!;
     this.initializeTiles(this.map);
     for (let y = 0; y < this.map.length; y++) {
       for (let x = 0; x < this.map[y].length; x++) {
@@ -47,8 +47,10 @@ class Game {
   }
 
   private drawTopRectangle() {
-    this.gameCtx.fillStyle = "white"; // Example: semi-transparent black
-    this.gameCtx.fillRect(0, 0, this.gameCanvas.width, 100);
+    this.score?.updateDisplay();
+    this.gameCtx.fillStyle = "white";
+    this.gameCtx.font = "bold 24px Arial";
+    this.gameCtx.fillText(`Score:${this.dave.score} `, 10, 30);
   }
 
   private initializeTiles(map: (string | null)[][]) {
@@ -89,39 +91,45 @@ class Game {
               break;
             case "D":
               [spriteX, spriteY] = [0, 1];
-              type = "pickable";
+              [type] = ["D"];
               break;
             case "RD":
               [spriteX, spriteY] = [1, 1];
-              type = "pickable";
+              type = "RD";
               break;
             case "G":
               [spriteX, spriteY] = [3, 1];
-              type = "pickable";
+              type = "G";
+
               break;
             case "RNG":
               [spriteX, spriteY] = [4, 1];
-              type = "pickable";
+              type = "RNG";
+
               break;
             case "Key":
               [spriteX, spriteY] = [5, 1];
-              type = "pickable";
+              type = "Key";
+              value: 50;
               break;
             case "C":
               [spriteX, spriteY] = [6, 1];
-              type = "pickable";
+              type = "C";
               break;
             case "Y":
               [spriteX, spriteY] = [7, 1];
-              type = "pickable";
+              type = "Y";
+
               break;
             case "J":
               [spriteX, spriteY] = [8, 1];
-              type = "pickable";
+              type = "J";
+
               break;
             case "E":
               [spriteX, spriteY] = [1, 8];
               type = "pickable";
+
               break;
             default:
               [spriteX, spriteY] = [0, 0];
@@ -129,31 +137,28 @@ class Game {
               break;
           }
 
-          const sprite =
-            type === "solid"
-              ? new SolidTile(
-                  spriteX,
-                  spriteY,
-                  x * TILE_SIZE,
-                  y * TILE_SIZE,
-                  64,
-                  64
-                )
-              : new EdibleTile(
-                  spriteX,
-                  spriteY,
-                  x * TILE_SIZE,
-                  y * TILE_SIZE,
-                  64,
-                  64
-                );
-
-          if (type === "solid") {
-            solidTiles.push(sprite as SolidTile);
-          }
-
-          if (type === "pickable") {
-            edibleTiles.push(sprite as EdibleTile);
+          if (type == "solid") {
+            let tile1 = new SolidTile(
+              spriteX,
+              spriteY,
+              x * TILE_SIZE,
+              y * TILE_SIZE,
+              64,
+              64
+            );
+            solidTiles.push(tile1);
+          } else {
+            let tile2 = new EdibleTile(
+              spriteX,
+              spriteY,
+              x * TILE_SIZE,
+              y * TILE_SIZE,
+              type,
+              64,
+              64
+            );
+            tile2.scorevalue();
+            edibleTiles.push(tile2);
           }
         }
       }
@@ -190,7 +195,6 @@ class Game {
 
   private gameLoop() {
     this.gameCtx.clearRect(0, 0, this.gameCanvas.width, this.gameCanvas.height);
-
     this.dave.update();
     this.renderGame();
     this.drawTopRectangle();

@@ -1,3 +1,5 @@
+import { Tile } from "./tile";
+
 export class SolidTile {
   private size: number;
   private sw: number;

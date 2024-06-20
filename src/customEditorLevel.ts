@@ -345,7 +345,6 @@ export class CustomEditorLevel {
     const gameCanvas = document.getElementById(
       "gameCanvas"
     ) as HTMLCanvasElement;
-    // const gameCtx = gameCanvas.getContext("2d")!;
     for (let y = 0; y < this.map.length; y++) {
       for (let x = 0; x < this.map[y].length; x++) {
         if (this.map[y][x]) {

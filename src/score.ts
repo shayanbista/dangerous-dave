@@ -1,21 +1,10 @@
 export class Score {
   private ctx: CanvasRenderingContext2D;
   private score: number;
-  private canvas: HTMLCanvasElement;
 
-  constructor(gameCanvas: HTMLCanvasElement) {
+  constructor(ctx: CanvasRenderingContext2D) {
     this.score = 0;
-    this.canvas = document.createElement("canvas");
-    this.canvas.width = gameCanvas.width;
-    this.canvas.height = 100;
-    this.canvas.style.position = "absolute";
-    this.canvas.style.top = "0";
-    this.canvas.style.left = "0";
-    this.canvas.style.zIndex = "2";
-    this.canvas.style.backgroundColor = "red";
-    this.canvas.style.pointerEvents = "none";
-    gameCanvas.parentElement?.appendChild(this.canvas);
-    this.ctx = this.canvas.getContext("2d")!;
+    this.ctx = ctx;
   }
 
   reset() {
@@ -28,17 +17,17 @@ export class Score {
   }
 
   updateDisplay() {
-    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    // this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    // this.ctx.fillStyle = "white";
+    // this.ctx.font = "bold 24px Arial";
+    // this.ctx.fillText(`Score: ${this.score}`, 10, 30);
+
     this.ctx.fillStyle = "white";
     this.ctx.font = "bold 24px Arial";
-    this.ctx.fillText(`Score: ${this.score}`, 10, 30);
-  }
+    this.ctx.fillText(`LEVEL ${3}`, 400, 30);
 
-  show() {
-    this.canvas.style.display = "block";
-  }
-
-  hide() {
-    this.canvas.style.display = "none";
+    this.ctx.fillStyle = "white";
+    this.ctx.font = "bold 24px Arial";
+    this.ctx.fillText(`DAVES ${3}`, 800, 30);
   }
 }

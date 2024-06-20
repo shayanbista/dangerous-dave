@@ -27,6 +27,7 @@ export class Character extends GameEntity {
   colliding: boolean = false;
   isCollidingRight: boolean = false;
   isCollidingLeft: boolean = false;
+  score: number;
 
   constructor(
     posX: number,
@@ -50,6 +51,7 @@ export class Character extends GameEntity {
     this.animationFrame = 0;
     this.gravity = 0.2;
     this.colliding = false;
+    this.score = 0;
 
     this.spriteImage = new Image();
     this.spriteImage.src = "assets/sprites/tileset.png";
@@ -180,7 +182,6 @@ export class Character extends GameEntity {
       this.grounded = isColliding(groundCheckRect, tileRect)
         ? true
         : this.grounded;
-      // if (isColliding(groundCheckRect, tileRect)) console.log(this.grounded);
       if (isColliding(playerRect, tileRect)) {
         if (playerRect.bottom > tileRect.top && playerRect.top < tileRect.top) {
           this.posY = tileRect.top - TILE_SIZE;
@@ -211,16 +212,25 @@ export class Character extends GameEntity {
       }
     }
 
-    for (let tile of this.edibleTiles) {
+    for (let i = 0; i < this.edibleTiles.length; i++) {
+      const tile = this.edibleTiles[i];
+      if (tile.consumed) continue;
+
       const tileRect = {
         left: tile.x,
         right: tile.x + TILE_SIZE,
         top: tile.y,
         bottom: tile.y + TILE_SIZE,
       };
+
       if (isColliding(playerRect, tileRect)) {
         console.log("collidedtileRect", tileRect);
         tile.consumed = true;
+        this.score += tile.value;
+        console.log("score", this.score);
+
+        this.edibleTiles.splice(i, 1);
+        i--;
       }
     }
   }

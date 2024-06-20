@@ -1,4 +1,8 @@
 export class Tile {
+  type: string;
+  constructor(type: string) {
+    this.type = type;
+  }
   static size = 64;
   static types = {
     solid: ["B", "R", "P", "K", "L", "T"],

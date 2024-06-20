@@ -25,3 +25,16 @@ export const TILES = {
   Jetpack: "J", // 8,1
   ExitDoor: "E", // 1,8
 };
+
+export const tileValues = {
+  D: 50,
+  RD: 100,
+  PD: 150,
+  G: 200,
+  RNG: 300,
+  Key: 500,
+  C: 1000,
+  Y: 2000,
+  J: 3000,
+  E: 4000,
+};
