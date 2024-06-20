@@ -31,8 +31,6 @@ export class CustomEditorLevel {
       row.map((tile) => (tile === " " ? null : tile))
     );
 
-    console.log("map", this.map);
-
     this.tilesetImage = new Image();
     this.tilesetImage.src = "assets/sprites/tileset.png";
 
@@ -144,9 +142,6 @@ export class CustomEditorLevel {
           break;
       }
 
-      console.log("spriteX of tile", spriteX);
-      console.log("spriteY of tile", spriteY);
-
       const sprite = new SolidTile(
         spriteX,
         spriteY,
@@ -155,13 +150,13 @@ export class CustomEditorLevel {
         TILE_SIZE,
         TILE_SIZE
       );
-      console.log("sprite", sprite);
+
       const tileCanvas = document.createElement("canvas");
       tileCanvas.width = TILE_SIZE;
       tileCanvas.height = TILE_SIZE;
       const ctx = tileCanvas.getContext("2d")!;
       sprite.draw(ctx, 0, 0, TILE_SIZE, TILE_SIZE);
-      console.log("sprite", sprite);
+
       tileBox.appendChild(tileCanvas);
       this.tileSelector.appendChild(tileBox);
 
@@ -230,7 +225,7 @@ export class CustomEditorLevel {
         coordinates = [0, 0];
         break;
     }
-    console.log(`Tile: ${key}, Coordinates: ${coordinates}`);
+
     return coordinates;
   }
 
@@ -238,16 +233,15 @@ export class CustomEditorLevel {
     this.mapCtx.clearRect(0, 0, this.mapCanvas.width, this.mapCanvas.height);
     this.drawScoreArea();
     this.drawFooterArea();
-    console.log("map area");
     for (let y = 0; y < this.map.length; y++) {
       for (let x = 0; x < this.map[y].length; x++) {
         if (this.map[y][x]) {
-          console.log("i am running ");
           this.drawTile(this.map[y][x]!, x * DRAW_SIZE, (y + 1) * DRAW_SIZE);
         }
       }
     }
   }
+
   drawScoreArea() {
     this.mapCtx.fillStyle = "gray";
     this.mapCtx.fillRect(0, 0, this.mapCanvas.width, DRAW_SIZE);
@@ -280,9 +274,9 @@ export class CustomEditorLevel {
   drawTile(tile: string, x: number, y: number) {
     if (tile !== " ") {
       const [spriteX, spriteY] = this.getTileCoordinates(tile);
-      console.log(spriteX, spriteY);
+
       const sprite = new SolidTile(spriteX, spriteY, TILE_SIZE, TILE_SIZE);
-      console.log("sprite", sprite);
+
       sprite.draw(this.mapCtx, x, y, DRAW_SIZE, DRAW_SIZE);
     }
   }
@@ -348,12 +342,10 @@ export class CustomEditorLevel {
   }
 
   drawGameCanvas() {
-
     const gameCanvas = document.getElementById(
       "gameCanvas"
     ) as HTMLCanvasElement;
-    const gameCtx = gameCanvas.getContext("2d")!;
-    gameCtx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
+    // const gameCtx = gameCanvas.getContext("2d")!;
     for (let y = 0; y < this.map.length; y++) {
       for (let x = 0; x < this.map[y].length; x++) {
         if (this.map[y][x]) {
@@ -375,7 +367,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 export const editor = editorInstance;
 
-// this funcition is called from the splash screensection
+// this funcition is called from the splash screen section
 export function startEditor() {
   document.getElementById("splashScreen")!.style.display = "none";
   document.getElementById("editor")!.style.display = "flex";
