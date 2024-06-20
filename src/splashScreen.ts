@@ -1,5 +1,6 @@
-import { initializeMapEditor } from "./customEditorLevel";
+// import { initializeMapEditor } from "./customEditorLevel";
 import { SolidTile } from "./SolidTile";
+import { startEditor } from "./customEditorLevel";
 
 class SplashScreen {
   private ctx: CanvasRenderingContext2D;
@@ -148,7 +149,7 @@ export function initializeSplashScreen() {
       document.getElementById("splashScreen")!.style.display = "none";
     } else if (e.code === "Space") {
       document.getElementById("splashScreen")!.style.display = "none";
-      initializeMapEditor();
+      startEditor();
     }
   });
 }

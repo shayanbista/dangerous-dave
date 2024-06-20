@@ -2,22 +2,24 @@ import { TILE_SIZE } from "./constant";
 import { SolidTile } from "./SolidTile";
 import { EdibleTile } from "./edibleTIle";
 
-export class GameEntity {
+interface GameEntityProps {
   posX: number;
   posY: number;
   width: number;
   height: number;
-  solidTiles: SolidTile[] = [];
-  edibleTiles: EdibleTile[] = [];
+  solidTiles: SolidTile[];
+  edibleTiles: EdibleTile[];
+}
 
-  constructor(
-    posX: number,
-    posY: number,
-    width: number,
-    height: number,
-    solidTiles: SolidTile[] = [],
-    edibleTiles: EdibleTile[] = []
-  ) {
+export class GameEntity implements GameEntityProps {
+  constructor({
+    posX,
+    posY,
+    width,
+    height,
+    solidTiles,
+    edibleTiles,
+  }: GameEntityProps) {
     this.posX = posX;
     this.posY = posY;
     this.width = width;
@@ -25,4 +27,10 @@ export class GameEntity {
     this.solidTiles = solidTiles;
     this.edibleTiles = edibleTiles;
   }
+  posX: number;
+  posY: number;
+  width: number;
+  height: number;
+  solidTiles: SolidTile[];
+  edibleTiles: EdibleTile[];
 }

@@ -34,7 +34,14 @@ export class Character extends GameEntity {
     solidTiles: SolidTile[] = [],
     edibleTiles: EdibleTile[] = []
   ) {
-    super(posX, posY, Tile.size - 4, Tile.size, solidTiles, edibleTiles);
+    super({
+      posX,
+      posY,
+      width: Tile.size - 4,
+      height: Tile.size,
+      solidTiles,
+      edibleTiles,
+    });
     this.velX = 0;
     this.velY = 0;
     this.direction = 1;

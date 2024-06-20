@@ -1,137 +1,172 @@
 import { SolidTile } from "./SolidTile";
-import { LEVEL1_MAP } from "./levels";
+import { CustomMap, LEVEL1_MAP } from "./levels";
 import { Game } from "./game";
+import { Score } from "./score";
 
-export function initializeMapEditor() {
-  const TILE_SIZE = 64;
-  const DRAW_SIZE = 50;
-  const TILES: { [key: string]: string } = {
-    BlackTile: "B", // 0,0
-    RedTile: "R", // 1,0
-    PurpleTile: "P", // 2,0
-    RockTile: "K", // 3,0
-    LavaTile: "L", // 4,0
-    BlueBlock: "T", // 5,0
-    Diamond: "D", // 0,1
-    RedDiamond: "RD", // 1,1
-    Dave: "DA", // 0,2 - Dave's sprite
-    Gun: "G", // 3,1
-    Ring: "RNG", // 4,1
-    Key: "Key", // 5,1
-    Crown: "C", // 6,1
-    Trophy: "Y", // 7,1
-    Jetpack: "J", // 8,1
-    ExitDoor: "E", // 1,8
-  };
+const TILE_SIZE = 64;
+const DRAW_SIZE = 50;
 
-  let currentTile = "B";
-  const mapCanvas = document.getElementById("map") as HTMLCanvasElement;
-  const mapCtx = mapCanvas.getContext("2d")!;
-  const tileSelector = document.getElementById("tileSelector") as HTMLElement;
-  const saveButton = document.getElementById("save") as HTMLButtonElement;
-  const output = document.createElement("textarea");
-  const errorDisplay = document.createElement("div");
-  errorDisplay.style.color = "red";
-  errorDisplay.id = "errorDisplay";
-  document.getElementById("editor")!.appendChild(errorDisplay);
+export class CustomEditorLevel {
+  private mapCanvas: HTMLCanvasElement;
+  private mapCtx: CanvasRenderingContext2D;
+  private tileSelector: HTMLElement;
+  private saveButton: HTMLButtonElement;
+  private output: HTMLTextAreaElement;
+  private errorDisplay: HTMLElement;
+  private successDisplay: HTMLElement;
+  private currentTile: string;
+  private map: (string | null)[][];
+  private tilesetImage: HTMLImageElement;
 
-  const successDisplay = document.createElement("div");
-  successDisplay.style.color = "green";
-  successDisplay.id = "successDisplay";
-  document.getElementById("editor")!.appendChild(successDisplay);
+  constructor() {
+    this.mapCanvas = document.getElementById("map") as HTMLCanvasElement;
+    this.mapCtx = this.mapCanvas.getContext("2d")!;
+    this.tileSelector = document.getElementById("tileSelector") as HTMLElement;
+    this.saveButton = document.getElementById("save") as HTMLButtonElement;
+    this.output = document.createElement("textarea");
+    this.errorDisplay = document.getElementById("errorDisplay")!;
+    this.successDisplay = document.getElementById("successDisplay")!;
+    this.currentTile = "B";
+    this.map = LEVEL1_MAP.map((row) =>
+      row.map((tile) => (tile === " " ? null : tile))
+    );
 
-  let map: (string | null)[][] = LEVEL1_MAP.map((row) =>
-    row.map((tile) => (tile === " " ? null : tile))
-  );
+    console.log("map", this.map);
 
-  // Loading the tileset image
-  const tilesetImage = new Image();
-  tilesetImage.src = "assets/sprites/tileset.png";
+    this.tilesetImage = new Image();
+    this.tilesetImage.src = "assets/sprites/tileset.png";
 
-  tilesetImage.onload = function () {
-    console.log("Tileset image loaded");
-    drawTileSelector();
-    drawMap();
-  };
+    this.init();
+  }
 
-  tilesetImage.onerror = function () {
-    console.error("Failed to load tileset image");
-  };
+  private init() {
+    this.errorDisplay.style.color = "red";
+    this.successDisplay.style.color = "green";
 
-  function drawTileSelector() {
-    tileSelector.innerHTML = "";
-    Object.keys(TILES).forEach((key) => {
+    this.tilesetImage.onload = () => {
+      this.drawTileSelector();
+      this.drawMap();
+    };
+
+    this.tilesetImage.onerror = () => {
+      console.error("Failed to load tileset image");
+    };
+
+    this.mapCanvas.addEventListener("click", this.handleCanvasClick.bind(this));
+    this.mapCanvas.addEventListener(
+      "contextmenu",
+      this.handleCanvasRightClick.bind(this)
+    );
+    this.saveButton.addEventListener("click", this.saveMap.bind(this));
+  }
+
+  private drawTileSelector() {
+    this.tileSelector.innerHTML = "";
+    const TILES: { [key: string]: string } = {
+      BlackTile: "B",
+      RedTile: "R",
+      PurpleTile: "P",
+      RockTile: "K",
+      LavaTile: "L",
+      BlueBlock: "T",
+      Diamond: "D",
+      RedDiamond: "RD",
+      Dave: "DA",
+      Gun: "G",
+      Ring: "RNG",
+      Key: "Key",
+      Crown: "C",
+      Trophy: "Y",
+      Jetpack: "J",
+      ExitDoor: "E",
+    };
+
+    Object.keys(TILES).forEach((key, index) => {
       const tileBox = document.createElement("div");
       tileBox.classList.add("tile-box");
       tileBox.dataset.tile = TILES[key];
-      if (TILES[key] === currentTile) {
+      if (TILES[key] === this.currentTile) {
         tileBox.classList.add("selected");
       }
-      let x: number, y: number;
+
+      let spriteX: number, spriteY: number;
       switch (key) {
         case "BlackTile":
-          [x, y] = [0, 0];
+          [spriteX, spriteY] = [0, 0];
           break;
         case "RedTile":
-          [x, y] = [1, 0];
+          [spriteX, spriteY] = [1, 0];
           break;
         case "PurpleTile":
-          [x, y] = [2, 0];
+          [spriteX, spriteY] = [2, 0];
           break;
         case "RockTile":
-          [x, y] = [3, 0];
+          [spriteX, spriteY] = [3, 0];
           break;
         case "LavaTile":
-          [x, y] = [4, 0];
+          [spriteX, spriteY] = [4, 0];
           break;
         case "BlueBlock":
-          [x, y] = [5, 0];
+          [spriteX, spriteY] = [5, 0];
           break;
         case "Diamond":
-          [x, y] = [0, 1];
+          [spriteX, spriteY] = [0, 1];
           break;
         case "RedDiamond":
-          [x, y] = [1, 1];
+          [spriteX, spriteY] = [1, 1];
           break;
         case "Dave":
-          [x, y] = [0, 2];
+          [spriteX, spriteY] = [0, 2];
           break;
         case "Gun":
-          [x, y] = [3, 1];
+          [spriteX, spriteY] = [3, 1];
           break;
         case "Ring":
-          [x, y] = [4, 1];
+          [spriteX, spriteY] = [4, 1];
           break;
         case "Key":
-          [x, y] = [5, 1];
+          [spriteX, spriteY] = [5, 1];
           break;
         case "Crown":
-          [x, y] = [6, 1];
+          [spriteX, spriteY] = [6, 1];
           break;
         case "Trophy":
-          [x, y] = [7, 1];
+          [spriteX, spriteY] = [7, 1];
           break;
         case "Jetpack":
-          [x, y] = [8, 1];
+          [spriteX, spriteY] = [8, 1];
           break;
         case "ExitDoor":
-          [x, y] = [1, 8];
+          [spriteX, spriteY] = [1, 8];
           break;
         default:
-          [x, y] = [0, 0];
+          [spriteX, spriteY] = [0, 0];
           break;
       }
-      const sprite = new SolidTile(x, y, 0, 0);
+
+      console.log("spriteX of tile", spriteX);
+      console.log("spriteY of tile", spriteY);
+
+      const sprite = new SolidTile(
+        spriteX,
+        spriteY,
+        index,
+        0,
+        TILE_SIZE,
+        TILE_SIZE
+      );
+      console.log("sprite", sprite);
       const tileCanvas = document.createElement("canvas");
       tileCanvas.width = TILE_SIZE;
       tileCanvas.height = TILE_SIZE;
       const ctx = tileCanvas.getContext("2d")!;
-      sprite.draw(ctx, 0, 0);
+      sprite.draw(ctx, 0, 0, TILE_SIZE, TILE_SIZE);
+      console.log("sprite", sprite);
       tileBox.appendChild(tileCanvas);
-      tileSelector.appendChild(tileBox);
+      this.tileSelector.appendChild(tileBox);
 
       tileBox.addEventListener("click", () => {
-        currentTile = tileBox.dataset.tile!;
+        this.currentTile = tileBox.dataset.tile!;
         document
           .querySelectorAll(".tile-box")
           .forEach((box) => box.classList.remove("selected"));
@@ -140,140 +175,148 @@ export function initializeMapEditor() {
     });
   }
 
-  function drawMap() {
-    mapCtx.clearRect(0, 0, mapCanvas.width, mapCanvas.height);
-    drawScoreArea();
-    drawFooterArea();
-    for (let y = 0; y < map.length; y++) {
-      for (let x = 0; x < map[y].length; x++) {
-        if (map[y][x]) {
-          // Offset by one row for score area
-          drawTile(map[y][x]!, x * DRAW_SIZE, (y + 1) * DRAW_SIZE);
+  private getTileCoordinates(key: string): [number, number] {
+    let coordinates: [number, number];
+    switch (key) {
+      case "B": // BlackTile
+        coordinates = [0, 0];
+        break;
+      case "R": // RedTile
+        coordinates = [1, 0];
+        break;
+      case "P": // PurpleTile
+        coordinates = [2, 0];
+        break;
+      case "K": // RockTile
+        coordinates = [3, 0];
+        break;
+      case "L": // LavaTile
+        coordinates = [4, 0];
+        break;
+      case "T": // BlueBlock
+        coordinates = [5, 0];
+        break;
+      case "D": // Diamond
+        coordinates = [0, 1];
+        break;
+      case "RD": // RedDiamond
+        coordinates = [1, 1];
+        break;
+      case "DA": // Dave
+        coordinates = [0, 2];
+        break;
+      case "G": // Gun
+        coordinates = [3, 1];
+        break;
+      case "RNG": // Ring
+        coordinates = [4, 1];
+        break;
+      case "Key": // Key
+        coordinates = [5, 1];
+        break;
+      case "C": // Crown
+        coordinates = [6, 1];
+        break;
+      case "Y": // Trophy
+        coordinates = [7, 1];
+        break;
+      case "J": // Jetpack
+        coordinates = [8, 1];
+        break;
+      case "E": // ExitDoor
+        coordinates = [1, 8];
+        break;
+      default:
+        coordinates = [0, 0];
+        break;
+    }
+    console.log(`Tile: ${key}, Coordinates: ${coordinates}`);
+    return coordinates;
+  }
+
+  public drawMap() {
+    this.mapCtx.clearRect(0, 0, this.mapCanvas.width, this.mapCanvas.height);
+    this.drawScoreArea();
+    this.drawFooterArea();
+    console.log("map area");
+    for (let y = 0; y < this.map.length; y++) {
+      for (let x = 0; x < this.map[y].length; x++) {
+        if (this.map[y][x]) {
+          console.log("i am running ");
+          this.drawTile(this.map[y][x]!, x * DRAW_SIZE, (y + 1) * DRAW_SIZE);
         }
       }
     }
   }
-
-  function drawScoreArea() {
-    mapCtx.fillStyle = "gray";
-    mapCtx.fillRect(0, 0, mapCanvas.width, DRAW_SIZE);
-    mapCtx.fillStyle = "white";
-    mapCtx.font = "bold 16px Arial";
-    mapCtx.fillText("SCORE AREA", mapCanvas.width / 2 - 60, DRAW_SIZE / 1.5);
+  drawScoreArea() {
+    this.mapCtx.fillStyle = "gray";
+    this.mapCtx.fillRect(0, 0, this.mapCanvas.width, DRAW_SIZE);
+    this.mapCtx.fillStyle = "white";
+    this.mapCtx.font = "bold 16px Arial";
+    this.mapCtx.fillText(
+      "SCORE AREA",
+      this.mapCanvas.width / 2 - 60,
+      DRAW_SIZE / 1.5
+    );
   }
 
-  function drawFooterArea() {
-    mapCtx.fillStyle = "gray";
-    mapCtx.fillRect(
+  drawFooterArea() {
+    this.mapCtx.fillStyle = "gray";
+    this.mapCtx.fillRect(
       0,
-      mapCanvas.height - DRAW_SIZE,
-      mapCanvas.width,
+      this.mapCanvas.height - DRAW_SIZE,
+      this.mapCanvas.width,
       DRAW_SIZE
     );
-    mapCtx.fillStyle = "white";
-    mapCtx.font = "bold 16px Arial";
-    mapCtx.fillText(
+    this.mapCtx.fillStyle = "white";
+    this.mapCtx.font = "bold 16px Arial";
+    this.mapCtx.fillText(
       "GAME FOOTER AREA",
-      mapCanvas.width / 2 - 80,
-      mapCanvas.height - DRAW_SIZE / 1.5
+      this.mapCanvas.width / 2 - 80,
+      this.mapCanvas.height - DRAW_SIZE / 1.5
     );
   }
 
-  function drawTile(tile: string, x: number, y: number) {
+  drawTile(tile: string, x: number, y: number) {
     if (tile !== " ") {
-      let spriteX: number, spriteY: number;
-      switch (tile) {
-        case "B":
-          [spriteX, spriteY] = [0, 0];
-          break;
-        case "R":
-          [spriteX, spriteY] = [1, 0];
-          break;
-        case "P":
-          [spriteX, spriteY] = [2, 0];
-          break;
-        case "K":
-          [spriteX, spriteY] = [3, 0];
-          break; // Rock tile
-        case "L":
-          [spriteX, spriteY] = [4, 0];
-          break;
-        case "T":
-          [spriteX, spriteY] = [5, 0];
-          break;
-        case "D":
-          [spriteX, spriteY] = [0, 1];
-          break;
-        case "RD":
-          [spriteX, spriteY] = [1, 1];
-          break;
-        case "DA":
-          [spriteX, spriteY] = [0, 2];
-          break; // Dave's sprite
-        case "G":
-          [spriteX, spriteY] = [3, 1];
-          break;
-        case "RNG":
-          [spriteX, spriteY] = [4, 1];
-          break;
-        case "Key":
-          [spriteX, spriteY] = [5, 1];
-          break; // Key tile
-        case "C":
-          [spriteX, spriteY] = [6, 1];
-          break;
-        case "Y":
-          [spriteX, spriteY] = [7, 1];
-          break;
-        case "J":
-          [spriteX, spriteY] = [8, 1];
-          break;
-        case "E":
-          [spriteX, spriteY] = [1, 8];
-          break;
-        default:
-          [spriteX, spriteY] = [0, 0];
-          break;
-      }
+      const [spriteX, spriteY] = this.getTileCoordinates(tile);
+      console.log(spriteX, spriteY);
       const sprite = new SolidTile(spriteX, spriteY, TILE_SIZE, TILE_SIZE);
-      sprite.draw(mapCtx, x, y, DRAW_SIZE, DRAW_SIZE);
+      console.log("sprite", sprite);
+      sprite.draw(this.mapCtx, x, y, DRAW_SIZE, DRAW_SIZE);
     }
   }
 
-  mapCanvas.addEventListener("click", (e) => {
-    const rect = mapCanvas.getBoundingClientRect();
+  handleCanvasClick(e: MouseEvent) {
+    const rect = this.mapCanvas.getBoundingClientRect();
     const x = Math.floor((e.clientX - rect.left) / DRAW_SIZE);
     const y = Math.floor((e.clientY - rect.top) / DRAW_SIZE) - 1;
 
-    if (y >= 0 && y < map.length) {
-      map[y][x] = currentTile;
-      console.log("Placed tile:", currentTile, "at", x, y);
-      drawMap();
+    if (y >= 0 && y < this.map.length) {
+      this.map[y][x] = this.currentTile;
+      this.drawMap();
     }
-  });
+  }
 
-  mapCanvas.addEventListener("contextmenu", (e) => {
+  handleCanvasRightClick(e: MouseEvent) {
     e.preventDefault();
-    const rect = mapCanvas.getBoundingClientRect();
+    const rect = this.mapCanvas.getBoundingClientRect();
     const x = Math.floor((e.clientX - rect.left) / DRAW_SIZE);
     const y = Math.floor((e.clientY - rect.top) / DRAW_SIZE) - 1;
 
-    if (y >= 0 && y < map.length) {
-      map[y][x] = null;
-      console.log("Removed tile at", x, y);
-      drawMap();
+    if (y >= 0 && y < this.map.length) {
+      this.map[y][x] = null;
+      this.drawMap();
     }
-  });
+  }
 
-  saveButton.addEventListener("click", () => {
-    const daveCount = map.flat().filter((tile) => tile === "DA").length;
-    const trophyCount = map.flat().filter((tile) => tile === "Y").length;
+  saveMap() {
+    const daveCount = this.map.flat().filter((tile) => tile === "DA").length;
+    const trophyCount = this.map.flat().filter((tile) => tile === "Y").length;
 
     let errorMessages: string[] = [];
-    errorDisplay.innerText = "";
-    successDisplay.innerText = "";
-    console.log(`DaveCount: ${daveCount}`);
-    console.log(`TrophyCount: ${trophyCount}`);
+    this.errorDisplay.innerText = "";
+    this.successDisplay.innerText = "";
     if (daveCount === 0) {
       errorMessages.push("At least one Dave must be placed on the map.");
     }
@@ -288,46 +331,55 @@ export function initializeMapEditor() {
     }
 
     if (errorMessages.length === 0) {
-      map.unshift(Array(map[0].length).fill("B"));
-      map.push(Array(map[0].length).fill("B"));
-      output.value = JSON.stringify(
-        map.map((row) => row.map((tile) => (tile ? tile : null)))
+      this.map.unshift(Array(this.map[0].length).fill("B"));
+      this.map.push(Array(this.map[0].length).fill("B"));
+      this.output.value = JSON.stringify(
+        this.map.map((row) => row.map((tile) => (tile ? tile : null)))
       );
-      console.log("Map saved:", output.value);
-      successDisplay.innerText = "Map saved successfully.";
-      // After saving, clear and redraw the game canvas
-      drawGameCanvas();
+      this.successDisplay.innerText = "Map saved successfully.";
+      this.drawGameCanvas();
     } else {
-      errorDisplay.innerText = "";
       errorMessages.forEach((msg) => {
         const errorMessage = document.createElement("p");
         errorMessage.innerText = msg;
-        errorDisplay.appendChild(errorMessage);
+        this.errorDisplay.appendChild(errorMessage);
       });
     }
-  });
+  }
 
-  function drawGameCanvas() {
+  drawGameCanvas() {
+
     const gameCanvas = document.getElementById(
       "gameCanvas"
     ) as HTMLCanvasElement;
     const gameCtx = gameCanvas.getContext("2d")!;
     gameCtx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
-    for (let y = 0; y < map.length; y++) {
-      for (let x = 0; x < map[y].length; x++) {
-        if (map[y][x]) {
-          drawTile(map[y][x]!, x * DRAW_SIZE, y * DRAW_SIZE);
+    for (let y = 0; y < this.map.length; y++) {
+      for (let x = 0; x < this.map[y].length; x++) {
+        if (this.map[y][x]) {
+          this.drawTile(this.map[y][x]!, x * DRAW_SIZE, y * DRAW_SIZE);
         }
       }
     }
     document.getElementById("editor")!.style.display = "none";
     document.getElementById("gameCanvas")!.style.display = "block";
-    // startGame(map); // Start the game with the saved map
-    new Game(map);
-  }
 
-  document.getElementById("editor")!.style.display = "block";
+    new Game(this.map);
+  }
+}
+
+let editorInstance: CustomEditorLevel | null = null;
+document.addEventListener("DOMContentLoaded", () => {
+  editorInstance = new CustomEditorLevel();
+});
+
+export const editor = editorInstance;
+
+// this funcition is called from the splash screensection
+export function startEditor() {
   document.getElementById("splashScreen")!.style.display = "none";
-  drawTileSelector();
-  drawMap();
+  document.getElementById("editor")!.style.display = "flex";
+  if (editorInstance) {
+    editorInstance.drawMap();
+  }
 }
