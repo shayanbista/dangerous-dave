@@ -1,6 +1,5 @@
-
 import { SolidTile } from "./SolidTile";
-import { CustomMap, LEVEL1_MAP, LEVEL2_MAP } from "./levels";
+import { CustomMap, CustomMap1, LEVEL1_MAP, LEVEL2_MAP } from "./levels";
 import { Game } from "./game";
 import { Score } from "./score";
 
@@ -43,8 +42,8 @@ export class CustomEditorLevel {
     this.currentTile = "B";
     this.levels = [
       LEVEL1_MAP.map((row) => row.map((tile) => (tile === " " ? null : tile))),
-      LEVEL1_MAP.map((row) => row.map((tile) => (tile === " " ? null : tile))),
-      LEVEL1_MAP.map((row) => row.map((tile) => (tile === " " ? null : tile))),
+      CustomMap.map((row) => row.map((tile) => (tile === " " ? null : tile))),
+      CustomMap1.map((row) => row.map((tile) => (tile === " " ? null : tile))),
     ];
     this.currentLevelIndex = 0;
     this.map = this.levels[this.currentLevelIndex];
@@ -258,7 +257,6 @@ export class CustomEditorLevel {
     for (let y = 0; y < this.map.length; y++) {
       for (let x = 0; x < this.map[y].length; x++) {
         if (this.map[y][x]) {
-          // this.drawTile(this.map[y][x]!, x * DRAW_SIZE, y * DRAW_SIZE);
           this.drawTile(this.map[y][x]!, x * DRAW_SIZE, (y + 1) * DRAW_SIZE);
         }
       }
@@ -348,8 +346,8 @@ export class CustomEditorLevel {
     }
 
     if (errorMessages.length === 0) {
-      this.map.unshift(Array(this.map[0].length).fill("B"));
-      this.map.push(Array(this.map[0].length).fill("B"));
+      // this.map.unshift(Array(this.map[0].length).fill("B"));
+      // this.map.push(Array(this.map[0].length).fill("B"));
       this.output.value = JSON.stringify(
         this.map.map((row) => row.map((tile) => (tile ? tile : null)))
       );

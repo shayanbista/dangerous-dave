@@ -224,7 +224,7 @@ export class Character extends GameEntity {
         top: tile.y,
         bottom: tile.y + TILE_SIZE,
       };
-      this.isDoor = false;
+
       if (isColliding(playerRect, tileRect)) {
         console.log("collidedtileRect", tileRect);
         // TODO remove tile.consumed dont need extra conditoin

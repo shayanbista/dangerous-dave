@@ -400,7 +400,7 @@ export const LEVEL2_MAP = [
   ],
   [
     "R",
-    " ",
+    "DA",
     " ",
     " ",
     " ",
@@ -482,7 +482,7 @@ export const CustomMap = [
     " ",
     " ",
     " ",
-    " ",
+    "DA",
     " ",
     " ",
     "RD",
@@ -798,7 +798,7 @@ export const CustomMap1 = [
   ],
   [
     "",
-    " ",
+    "E",
     " ",
     " ",
     " ",
