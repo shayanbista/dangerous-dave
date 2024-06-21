@@ -28,6 +28,7 @@
       #gameCanvas {
         display: none;
         border: 1px solid black;
+        align-items: center;
       }
       canvas {
         border: 1px solid black;
@@ -57,7 +58,7 @@
         border: 3px solid red;
       }
       #map {
-        background-color: black;
+        background-color: green;
       }
     </style>
   </head>
@@ -69,7 +70,11 @@
       <div id="tileSelectorWrapper">
         <div id="tileSelector"></div>
       </div>
-      <canvas id="map" width="1000" height="600"></canvas>
+      <div class="mapeditor">
+        <button id="previous-level">Previous Level</button>
+        <canvas id="map" width="1000" height="600"> </canvas>
+        <button id="next-level">Next Level</button>
+      </div>
       <button id="save">Save Map</button>
       <div id="errorDisplay"></div>
       <div id="successDisplay"></div>

@@ -28,6 +28,7 @@ export class Character extends GameEntity {
   isCollidingRight: boolean = false;
   isCollidingLeft: boolean = false;
   score: number;
+  isDoor: boolean;
 
   constructor(
     posX: number,
@@ -52,6 +53,7 @@ export class Character extends GameEntity {
     this.gravity = 0.2;
     this.colliding = false;
     this.score = 0;
+    this.isDoor = false;
 
     this.spriteImage = new Image();
     this.spriteImage.src = "assets/sprites/tileset.png";
@@ -222,15 +224,22 @@ export class Character extends GameEntity {
         top: tile.y,
         bottom: tile.y + TILE_SIZE,
       };
-
+      this.isDoor = false;
       if (isColliding(playerRect, tileRect)) {
         console.log("collidedtileRect", tileRect);
-        tile.consumed = true;
+        // TODO remove tile.consumed dont need extra conditoin
+        // tile.consumed = true;
         this.score += tile.value;
         console.log("score", this.score);
 
-        this.edibleTiles.splice(i, 1);
-        i--;
+        if (tile.type == "door") {
+          tile.consumed = false;
+          this.isDoor = true;
+          break;
+        } else {
+          this.edibleTiles.splice(i, 1);
+          i--;
+        }
       }
     }
   }

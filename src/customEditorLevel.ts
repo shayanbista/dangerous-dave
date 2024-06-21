@@ -1,5 +1,6 @@
+
 import { SolidTile } from "./SolidTile";
-import { CustomMap, LEVEL1_MAP } from "./levels";
+import { CustomMap, LEVEL1_MAP, LEVEL2_MAP } from "./levels";
 import { Game } from "./game";
 import { Score } from "./score";
 
@@ -11,25 +12,42 @@ export class CustomEditorLevel {
   private mapCtx: CanvasRenderingContext2D;
   private tileSelector: HTMLElement;
   private saveButton: HTMLButtonElement;
+  private prevLevelButton: HTMLButtonElement;
+  private nextLevelButton: HTMLButtonElement;
   private output: HTMLTextAreaElement;
   private errorDisplay: HTMLElement;
   private successDisplay: HTMLElement;
   private currentTile: string;
   private map: (string | null)[][];
   private tilesetImage: HTMLImageElement;
+  // TODO conver this levels any to type
+  private levels: any;
+  private currentLevelIndex: number;
 
   constructor() {
     this.mapCanvas = document.getElementById("map") as HTMLCanvasElement;
     this.mapCtx = this.mapCanvas.getContext("2d")!;
     this.tileSelector = document.getElementById("tileSelector") as HTMLElement;
+    this.mapCanvas.style.background = "red";
     this.saveButton = document.getElementById("save") as HTMLButtonElement;
+    this.prevLevelButton = document.getElementById(
+      "previous-level"
+    ) as HTMLButtonElement;
+    this.nextLevelButton = document.getElementById(
+      "next-level"
+    ) as HTMLButtonElement;
+
     this.output = document.createElement("textarea");
     this.errorDisplay = document.getElementById("errorDisplay")!;
     this.successDisplay = document.getElementById("successDisplay")!;
     this.currentTile = "B";
-    this.map = LEVEL1_MAP.map((row) =>
-      row.map((tile) => (tile === " " ? null : tile))
-    );
+    this.levels = [
+      LEVEL1_MAP.map((row) => row.map((tile) => (tile === " " ? null : tile))),
+      LEVEL1_MAP.map((row) => row.map((tile) => (tile === " " ? null : tile))),
+      LEVEL1_MAP.map((row) => row.map((tile) => (tile === " " ? null : tile))),
+    ];
+    this.currentLevelIndex = 0;
+    this.map = this.levels[this.currentLevelIndex];
 
     this.tilesetImage = new Image();
     this.tilesetImage.src = "assets/sprites/tileset.png";
@@ -55,6 +73,9 @@ export class CustomEditorLevel {
       "contextmenu",
       this.handleCanvasRightClick.bind(this)
     );
+
+    this.prevLevelButton.addEventListener("click", this.prevLevel.bind(this));
+    this.nextLevelButton.addEventListener("click", this.nextLevel.bind(this));
     this.saveButton.addEventListener("click", this.saveMap.bind(this));
   }
 
@@ -233,9 +254,11 @@ export class CustomEditorLevel {
     this.mapCtx.clearRect(0, 0, this.mapCanvas.width, this.mapCanvas.height);
     this.drawScoreArea();
     this.drawFooterArea();
+    console.log("map length", this.map.length);
     for (let y = 0; y < this.map.length; y++) {
       for (let x = 0; x < this.map[y].length; x++) {
         if (this.map[y][x]) {
+          // this.drawTile(this.map[y][x]!, x * DRAW_SIZE, y * DRAW_SIZE);
           this.drawTile(this.map[y][x]!, x * DRAW_SIZE, (y + 1) * DRAW_SIZE);
         }
       }
@@ -331,6 +354,8 @@ export class CustomEditorLevel {
         this.map.map((row) => row.map((tile) => (tile ? tile : null)))
       );
       this.successDisplay.innerText = "Map saved successfully.";
+      this.levels[this.currentLevelIndex] = this.map;
+      console.log("levels", this.levels);
       this.drawGameCanvas();
     } else {
       errorMessages.forEach((msg) => {
@@ -341,32 +366,47 @@ export class CustomEditorLevel {
     }
   }
 
-  drawGameCanvas() {
-    const gameCanvas = document.getElementById(
-      "gameCanvas"
-    ) as HTMLCanvasElement;
-    for (let y = 0; y < this.map.length; y++) {
-      for (let x = 0; x < this.map[y].length; x++) {
-        if (this.map[y][x]) {
-          this.drawTile(this.map[y][x]!, x * DRAW_SIZE, y * DRAW_SIZE);
-        }
-      }
+  prevLevel() {
+    console.log("currentIndex", this.currentLevelIndex);
+    console.log("i am clicked left");
+    if (this.currentLevelIndex > 0) {
+      this.currentLevelIndex--;
+      this.map = this.levels[this.currentLevelIndex];
+      this.drawMap();
+    } else {
+      this.currentLevelIndex = 0;
     }
-    document.getElementById("editor")!.style.display = "none";
-    document.getElementById("gameCanvas")!.style.display = "block";
+  }
 
-    new Game(this.map);
+  nextLevel() {
+    console.log("i am clicked right");
+    console.log("levels length", this.levels.length);
+    if (this.currentLevelIndex < this.levels.length - 1) {
+      this.currentLevelIndex++;
+      console.log("index", this.currentLevelIndex);
+      this.map = this.levels[this.currentLevelIndex];
+      console.log("drawingmap", this.map);
+      console.log("current Index", this.currentLevelIndex);
+      this.drawMap();
+    } else {
+      console.log("Already at the last level");
+    }
+  }
+
+  drawGameCanvas() {
+    new Game(this.levels);
   }
 }
 
 let editorInstance: CustomEditorLevel | null = null;
+
 document.addEventListener("DOMContentLoaded", () => {
   editorInstance = new CustomEditorLevel();
 });
 
 export const editor = editorInstance;
 
-// this funcition is called from the splash screen section
+// this function is called from the splash screen section
 export function startEditor() {
   document.getElementById("splashScreen")!.style.display = "none";
   document.getElementById("editor")!.style.display = "flex";

@@ -1,59 +1,94 @@
+
 import { Character } from "./character";
-import { EdibleTile } from "./edibleTIle";
 import { TILE_SIZE } from "./constant";
 import { SolidTile } from "./SolidTile";
 import { solidTiles } from "./constant";
 import { edibleTiles } from "./constant";
 import { Score } from "./score";
+import { EdibleTile } from "./edibleTIle";
 
 class Game {
+  private levels: any;
   private gameCanvas: HTMLCanvasElement;
   private gameCtx: CanvasRenderingContext2D;
-  private map: (string | null)[][];
+
   private dave: Character;
   public score: Score | undefined;
+  private currentLevel: number;
+  private map: string[][];
+  isDoor: boolean;
 
-  constructor(map: (string | null)[][]) {
+  private scoreboardHeight: number = 50;
+
+  constructor(levels: any) {
     this.gameCanvas = document.getElementById(
       "gameCanvas"
     ) as HTMLCanvasElement;
     this.gameCtx = this.gameCanvas.getContext("2d")!;
-    this.gameCanvas.style.background = "black";
+    this.gameCanvas.style.background = "transparent"; // Set background to transparent
+    this.gameCanvas.height += this.scoreboardHeight;
+
+    this.currentLevel = 0;
+    this.levels = levels;
     this.score = new Score(this.gameCtx);
 
-    this.map = map;
+    document.getElementById("editor")!.style.display = "none";
+    document.getElementById("gameCanvas")!.style.display = "block";
+
+    this.map = this.levels[this.currentLevel];
+    console.log("map", this.map);
+    this.isDoor = false;
+
+    console.log("levels", this.levels);
     this.dave = new Character(0, 0);
     this.initializeGame();
   }
 
   private initializeGame() {
+    console.log("game initialized");
+
+    this.drawGraySections();
     this.initializeTiles(this.map);
+    this.setCharacterPosition();
+    this.renderGame();
+    window.requestAnimationFrame(this.gameLoop.bind(this));
+  }
+
+  private drawGraySections() {
+    // Draw the gray sections at the top and bottom
+    this.gameCtx.fillStyle = "gray";
+    this.gameCtx.fillRect(0, 0, this.gameCanvas.width, this.scoreboardHeight); // Top section
+    this.gameCtx.fillRect(
+      0,
+      this.gameCanvas.height - this.scoreboardHeight,
+      this.gameCanvas.width,
+      this.scoreboardHeight
+    ); // Bottom section
+  }
+
+  private setCharacterPosition() {
     for (let y = 0; y < this.map.length; y++) {
       for (let x = 0; x < this.map[y].length; x++) {
         if (this.map[y][x] === "DA") {
           this.dave = new Character(
             x * TILE_SIZE,
-            y * TILE_SIZE,
+            y * TILE_SIZE + this.scoreboardHeight,
             solidTiles,
             edibleTiles
           );
-          break;
+          return;
         }
       }
     }
-
-    this.renderGame();
-    window.requestAnimationFrame(this.gameLoop.bind(this));
   }
 
-  private drawTopRectangle() {
-    this.score?.updateDisplay();
+  private drawScoreArea() {
     this.gameCtx.fillStyle = "white";
     this.gameCtx.font = "bold 24px Arial";
-    this.gameCtx.fillText(`Score:${this.dave.score} `, 10, 30);
+    this.gameCtx.fillText(`Score: ${this.dave.score} `, 10, 30);
   }
 
-  private initializeTiles(map: (string | null)[][]) {
+  private initializeTiles(map: string[][]) {
     solidTiles.length = 0;
     edibleTiles.length = 0;
 
@@ -91,7 +126,7 @@ class Game {
               break;
             case "D":
               [spriteX, spriteY] = [0, 1];
-              [type] = ["D"];
+              type = "D";
               break;
             case "RD":
               [spriteX, spriteY] = [1, 1];
@@ -100,17 +135,14 @@ class Game {
             case "G":
               [spriteX, spriteY] = [3, 1];
               type = "G";
-
               break;
             case "RNG":
               [spriteX, spriteY] = [4, 1];
               type = "RNG";
-
               break;
             case "Key":
               [spriteX, spriteY] = [5, 1];
               type = "Key";
-              value: 50;
               break;
             case "C":
               [spriteX, spriteY] = [6, 1];
@@ -119,17 +151,14 @@ class Game {
             case "Y":
               [spriteX, spriteY] = [7, 1];
               type = "Y";
-
               break;
             case "J":
               [spriteX, spriteY] = [8, 1];
               type = "J";
-
               break;
             case "E":
               [spriteX, spriteY] = [1, 8];
-              type = "pickable";
-
+              type = "door";
               break;
             default:
               [spriteX, spriteY] = [0, 0];
@@ -137,12 +166,12 @@ class Game {
               break;
           }
 
-          if (type == "solid") {
+          if (type === "solid") {
             let tile1 = new SolidTile(
               spriteX,
               spriteY,
               x * TILE_SIZE,
-              y * TILE_SIZE,
+              y * TILE_SIZE + this.scoreboardHeight, // Adjust for scoreboard
               64,
               64
             );
@@ -152,7 +181,7 @@ class Game {
               spriteX,
               spriteY,
               x * TILE_SIZE,
-              y * TILE_SIZE,
+              y * TILE_SIZE + this.scoreboardHeight, // Adjust for scoreboard
               type,
               64,
               64
@@ -165,31 +194,46 @@ class Game {
     }
   }
 
+  private isInDoor() {
+    if (this.dave.isDoor) {
+      console.log("dave reached door");
+      this.currentLevel =
+        this.currentLevel >= this.levels.length - 1 ? 0 : this.currentLevel + 1;
+      this.map = this.levels[this.currentLevel];
+      this.initializeTiles(this.map);
+      this.setCharacterPosition();
+      this.dave.isDoor = false;
+
+      // Adjust canvas view to ensure proper rendering
+      this.gameCtx.clearRect(
+        0,
+        0,
+        this.gameCanvas.width,
+        this.gameCanvas.height
+      );
+      this.renderGame();
+    }
+    console.log("currentlevel", this.currentLevel);
+  }
+
   private renderTiles() {
     for (const tile of solidTiles) {
       tile.draw(this.gameCtx, tile.x, tile.y, TILE_SIZE, TILE_SIZE);
     }
     for (const tile of edibleTiles) {
-      if (!tile.consumed)
+      if (!tile.consumed) {
         tile.draw(this.gameCtx, tile.x, tile.y, TILE_SIZE, TILE_SIZE);
+      }
     }
   }
 
   private renderGame() {
+    this.drawGraySections(); // Draw the gray sections first
     this.renderTiles();
     this.renderDave(this.dave.posX, this.dave.posY);
   }
 
   private renderDave(posX: number, posY: number) {
-    let spriteX = 2;
-    let spriteY = 2;
-
-    if (this.dave.direction === 1) {
-      spriteX = (this.dave.animationFrame % 4) + 1;
-    } else {
-      spriteX = (this.dave.animationFrame % 4) + 5;
-    }
-
     this.dave.draw(this.gameCtx, posX, posY, TILE_SIZE, TILE_SIZE);
   }
 
@@ -197,7 +241,7 @@ class Game {
     this.gameCtx.clearRect(0, 0, this.gameCanvas.width, this.gameCanvas.height);
     this.dave.update();
     this.renderGame();
-    this.drawTopRectangle();
+    // this.drawTopRectangle();
     window.requestAnimationFrame(this.gameLoop.bind(this));
   }
 
