@@ -4,6 +4,7 @@ import {
   CustomMap1,
   LEVEL1_MAP,
   LEVEL2_MAP,
+  Level_3Map,
   Level_complete,
 } from "./levels";
 import { Game } from "./game";
@@ -66,6 +67,7 @@ export class CustomEditorLevel {
       // ),
       CustomMap.map((row) => row.map((tile) => (tile === " " ? null : tile))),
       CustomMap1.map((row) => row.map((tile) => (tile === " " ? null : tile))),
+      Level_3Map.map((row) => row.map((tile) => (tile === " " ? null : tile))),
     ];
     this.currentLevelIndex = 0;
     this.map = this.levels[this.currentLevelIndex];
@@ -368,7 +370,6 @@ export class CustomEditorLevel {
     }
 
     if (errorMessages.length === 0) {
-
       this.output.value = JSON.stringify(
         this.map.map((row) => row.map((tile) => (tile ? tile : null)))
       );

@@ -11,6 +11,13 @@ interface InputKeys {
   up: { hold: boolean };
 }
 
+interface Rect {
+  left: number;
+  right: number;
+  top: number;
+  bottom: number;
+}
+
 interface CharacterProps {
   posX: number;
   posY: number;
@@ -45,6 +52,7 @@ export class Character extends GameEntity {
   framedelay: number;
   explosionComplete: boolean;
   explosionFrame: number;
+  isDead: boolean;
 
   constructor({
     posX,
@@ -84,9 +92,10 @@ export class Character extends GameEntity {
     this.scoreMessage = "";
     this.levelUpMessage = null;
     this.frameCounter = 0;
-    this.framedelay = 10;
+    this.framedelay = 18;
     this.explosionComplete = true;
     this.explosionFrame = 0;
+    this.isDead = false;
 
     this.spriteImage = new Image();
     this.spriteImage.src = "assets/sprites/tileset.png";
@@ -97,37 +106,27 @@ export class Character extends GameEntity {
       up: { hold: false },
     };
 
-    this.initializeControls(this.keys);
+    this.initializeControls();
   }
 
-  private initializeControls(keys: InputKeys) {
-    window.addEventListener("keydown", (e) => this.handleKeyDown(e, keys));
-    window.addEventListener("keyup", (e) => this.handleKeyUp(e, keys));
+  private initializeControls() {
+    window.addEventListener("keydown", (e) => {
+      if (this.controlsEnabled) this.handleKeyHold(e.key, true);
+    });
+    window.addEventListener("keyup", (e) => this.handleKeyHold(e.key, false));
   }
 
-  private handleKeyDown(e: KeyboardEvent, keys: InputKeys) {
-    if (this.controlsEnabled) {
-      if (e.key === "ArrowRight") {
-        keys.right.hold = true;
-        this.direction = 1;
-      } else if (e.key === "ArrowLeft") {
-        keys.left.hold = true;
-        this.direction = -1;
-      } else if (e.key === "ArrowUp") {
-        this.velY -= 10;
-        this.jumping = true;
-      }
-    }
-  }
-
-  private handleKeyUp(e: KeyboardEvent, keys: InputKeys) {
-    if (e.key === "ArrowRight") {
-      keys.right.hold = false;
-    } else if (e.key === "ArrowLeft") {
-      keys.left.hold = false;
-    } else if (e.key === "ArrowUp" && !this.jumping) {
-      this.velY = this.JUMP_SPEED;
-      this.jumping = true;
+  private handleKeyHold(key: string, hold: boolean) {
+    switch (key) {
+      case "ArrowLeft":
+        this.keys.left.hold = hold;
+        break;
+      case "ArrowRight":
+        this.keys.right.hold = hold;
+        break;
+      case "ArrowUp":
+        this.keys.up.hold = hold;
+        break;
     }
   }
 
@@ -191,12 +190,11 @@ export class Character extends GameEntity {
 
   moveCharacterAutomatically() {
     this.moveAutomatically = true;
-    this.posX += this.velX;
+    this.velX = 3;
+    console.log("i am running");
+
     this.direction = 1;
     this.controlsEnabled = false;
-    this.animationFrame++;
-
-    this.updateAnimationFrame();
     this.levelUpMessage = "More levels to go!";
   }
 
@@ -232,42 +230,43 @@ export class Character extends GameEntity {
   }
 
   private handleInputMovement() {
+    this.posX += this.velX;
     this.posY += this.velY;
-    if (this.keys.right.hold || this.keys.left.hold) {
-      this.frameCounter++;
-      if (this.frameCounter >= this.framedelay) {
-        this.animationFrame = (this.animationFrame + 1) % 3;
-        this.frameCounter = 0;
-      }
-    } else {
-      this.animationFrame = 0;
-    }
+    this.velX = 0;
+
+    // if (this.velX > 0 || this.velX < 0) {
+    //   this.frameCounter++;
+    //   if (this.frameCounter >= this.framedelay) {
+    //     this.animationFrame = (this.animationFrame + 1) % 3;
+    //     this.frameCounter = 0;
+    //   }
+    // } else {
+    //   this.animationFrame = 0;
+    // }
 
     if (this.keys.left.hold) {
-      this.posX -= this.velX;
+      this.velX = -4;
       this.direction = -1;
     }
 
     if (this.keys.right.hold) {
-      this.posX += this.velX;
+      this.velX = 4;
       this.direction = 1;
     }
 
-    if (this.jumping) {
-      this.posY += this.velY;
-      this.canJump = false;
+    if (this.keys.up.hold && this.grounded) {
+      this.velY = this.JUMP_SPEED;
       this.grounded = false;
     }
   }
 
   handleCollision() {
-    const playerRect = this.getPlayerRect();
     const crownExists = this.edibleTiles.some((tile) => tile.type === "Y");
 
     this.grounded = false;
 
     for (let tile of this.solidTiles) {
-      this.handleSolidTileCollision(tile, playerRect);
+      this.handleSolidTileCollision(tile);
     }
 
     for (let i = 0; i < this.edibleTiles.length; i++) {
@@ -277,16 +276,16 @@ export class Character extends GameEntity {
       const tileRect = this.getTileRect(tile);
       this.isDoor = false;
 
-      if (isColliding(playerRect, tileRect)) {
+      if (isColliding(this.playerRect, tileRect)) {
         this.handleEdibleTileCollision(tile, crownExists, i);
       }
     }
     for (let tile of this.harmingTiles) {
-      this.handleHarmingTileCollision(tile, playerRect);
+      this.handleHarmingTileCollision(tile);
     }
   }
 
-  private handleSolidTileCollision(tile: SolidTile, playerRect: any) {
+  private handleSolidTileCollision(tile: SolidTile) {
     const tileRect = this.getTileRect(tile);
 
     const groundCheckRect = {
@@ -300,32 +299,35 @@ export class Character extends GameEntity {
       ? true
       : this.grounded;
 
-    if (isColliding(playerRect, tileRect)) {
-      this.resolveTileCollision(playerRect, tileRect);
+    if (isColliding(this.playerRect, tileRect)) {
+      this.resolveTileCollision(tileRect);
     }
   }
 
-  // TODO resolve any
-  private resolveTileCollision(playerRect: any, tileRect: any) {
-    if (playerRect.bottom >= tileRect.top && playerRect.top <= tileRect.top) {
+  private resolveTileCollision(tileRect: Rect) {
+    if (
+      this.playerRect.bottom >= tileRect.top &&
+      this.playerRect.top <= tileRect.top
+    ) {
       this.posY = tileRect.top - TILE_SIZE;
       this.velY = 0;
       this.jumping = false;
+      this.grounded = true;
     } else if (
-      playerRect.top <= tileRect.bottom &&
-      playerRect.bottom >= tileRect.bottom
+      this.playerRect.top <= tileRect.bottom &&
+      this.playerRect.bottom >= tileRect.bottom
     ) {
       this.posY = tileRect.bottom;
       this.velY = 0;
     } else if (
-      playerRect.right >= tileRect.left &&
-      playerRect.left <= tileRect.left
+      this.playerRect.right >= tileRect.left &&
+      this.playerRect.left <= tileRect.left
     ) {
       this.posX -= 5;
       this.animationFrame = 0;
     } else if (
-      playerRect.left <= tileRect.right &&
-      playerRect.right >= tileRect.right
+      this.playerRect.left <= tileRect.right &&
+      this.playerRect.right >= tileRect.right
     ) {
       this.posX = tileRect.right - 0.01;
     }
@@ -354,18 +356,21 @@ export class Character extends GameEntity {
     }
   }
 
-  private handleHarmingTileCollision(tile: HarmingTile, playerRect: any) {
+  private handleHarmingTileCollision(tile: HarmingTile) {
     const tileRect = this.getTileRect(tile);
-    if (isColliding(playerRect, tileRect)) {
-      this.lives -= 1;
-      if (this.lives > 0) this.handleExplosion();
-      else {
+    if (isColliding(this.playerRect, tileRect)) {
+      if (this.lives > 0 && !this.isDead) {
+        console.log("lives", this.lives);
+        this.isDead = true;
+        this.lives -= 1;
+        this.handleExplosion();
+      } else {
         console.log("Gameover");
       }
     }
   }
 
-  private getPlayerRect() {
+  private get playerRect() {
     return {
       left: this.posX + 10,
       right: this.posX + TILE_SIZE - 10,
@@ -374,7 +379,7 @@ export class Character extends GameEntity {
     };
   }
 
-  private getTileRect(tile: any) {
+  private getTileRect(tile: { x: number; y: number }) {
     return {
       left: tile.x,
       right: tile.x + TILE_SIZE,
@@ -384,7 +389,7 @@ export class Character extends GameEntity {
   }
 
   private respawn() {
-    this.posX -= 50;
+    this.isDead = false;
     this.controlsEnabled = true;
     this.explosionComplete = true;
     this.posX = 300;
@@ -417,7 +422,7 @@ export class Character extends GameEntity {
 }
 
 // Utility function to check collision
-function isColliding(rect1: any, rect2: any): boolean {
+function isColliding(rect1: Rect, rect2: Rect): boolean {
   return (
     rect1.left < rect2.right &&
     rect1.right > rect2.left &&

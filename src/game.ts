@@ -56,7 +56,7 @@ class Game {
     this.score?.updateDisplay(
       this.dave.score,
       this.currentLevel,
-      3,
+      this.dave.lives,
       this.dave.levelUpMessage
     );
   }
