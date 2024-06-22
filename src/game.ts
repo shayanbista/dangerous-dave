@@ -5,6 +5,7 @@ import { solidTiles } from "./constant";
 import { edibleTiles } from "./constant";
 import { Score } from "./score";
 import { EdibleTile } from "./edibleTIle";
+import { Level_complete } from "./levels";
 
 class Game {
   private levels: any;
@@ -16,6 +17,8 @@ class Game {
   private map: string[][];
   isDoor: boolean;
   private scoreboardHeight: number = 50;
+  isLevelComplete: boolean;
+  private totalScore: number;
 
   constructor(levels: any) {
     this.gameCanvas = document.getElementById(
@@ -26,23 +29,22 @@ class Game {
     this.gameCanvas.height += this.scoreboardHeight;
     this.currentLevel = 0;
     this.levels = levels;
+
     this.score = new Score(this.gameCtx);
+    this.isLevelComplete = false;
 
     document.getElementById("editor")!.style.display = "none";
     document.getElementById("gameCanvas")!.style.display = "block";
 
     this.map = this.levels[this.currentLevel];
-    console.log("map", this.map);
-    this.isDoor = false;
 
-    console.log("levels", this.levels);
-    console.log("map", this.map[2]);
+    this.isDoor = false;
     this.dave = new Character(0, 0);
+    this.totalScore = 0;
     this.initializeGame();
   }
 
   private initializeGame() {
-    console.log("game initialized");
     this.initializeTiles(this.map);
     this.setCharacterPosition();
     this.renderGame();
@@ -52,18 +54,29 @@ class Game {
   private scoreSection() {
     this.gameCtx.fillStyle = "black";
     this.gameCtx.fillRect(0, 0, this.gameCanvas.width, this.scoreboardHeight);
-    this.gameCtx.fillStyle = "white";
-    this.gameCtx.font = "bold 24px Arial";
-    this.gameCtx.fillText(`Score: ${this.dave.score}`, 10, 30);
+    this.score?.updateDisplay(
+      this.dave.score,
+      this.currentLevel,
+      3,
+      this.dave.levelUpMessage
+    );
   }
 
   private footerSection() {
-    this.gameCtx.fillStyle = "gray";
+    this.gameCtx.fillStyle = "black";
     this.gameCtx.fillRect(
       0,
       this.gameCanvas.height - this.scoreboardHeight,
       this.gameCanvas.width,
       this.scoreboardHeight
+    );
+
+    this.gameCtx.fillStyle = "white";
+    this.gameCtx.font = "bold 24px Arial";
+    this.gameCtx.fillText(
+      this.dave.utilityMessage,
+      50,
+      this.gameCanvas.height - 20
     );
   }
 
@@ -77,6 +90,7 @@ class Game {
             solidTiles,
             edibleTiles
           );
+          this.dave.score = this.totalScore;
           return;
         }
       }
@@ -181,6 +195,7 @@ class Game {
               64,
               64
             );
+
             tile2.scorevalue();
             edibleTiles.push(tile2);
           }
@@ -191,12 +206,14 @@ class Game {
 
   private isInDoor() {
     if (this.dave.isDoor) {
+      this.totalScore = this.dave.score;
       if (this.currentLevel < this.levels.length - 1) {
-        this.currentLevel++;
-        this.loadlevel();
-        setTimeout(() => {
-          this.isDoor = false;
-        }, 100);
+        if (this.map.some((row) => row.includes("E"))) {
+          this.showLevelComplete();
+        } else {
+          this.currentLevel++;
+          this.loadlevel();
+        }
       } else {
         console.log("all levels completed");
       }
@@ -205,7 +222,6 @@ class Game {
 
   private loadlevel() {
     this.map = this.levels[this.currentLevel];
-    console.log("New map", this.map);
     this.initializeTiles(this.map);
     this.setCharacterPosition();
     this.dave.isDoor = false;
@@ -227,29 +243,60 @@ class Game {
 
   private renderGame() {
     this.renderTiles();
-    this.renderDave(this.dave.posX, this.dave.posY);
-  }
-
-  private renderDave(posX: number, posY: number) {
-    this.dave.draw(this.gameCtx, posX, posY, TILE_SIZE, TILE_SIZE);
+    this.dave.draw(this.gameCtx, TILE_SIZE, TILE_SIZE);
   }
 
   private gameLoop() {
     this.gameCtx.clearRect(0, 0, this.gameCanvas.width, this.gameCanvas.height);
-    console.log("current level", this.currentLevel);
+
     this.isInDoor();
     this.scoreSection();
     this.footerSection();
     this.dave.update();
     this.renderGame();
+
+    if (this.dave.reachedEndMap) {
+      this.showLevelComplete();
+    }
+
     window.requestAnimationFrame(this.gameLoop.bind(this));
   }
 
-  private getTile(x: number, y: number) {
-    const col = Math.floor(x / TILE_SIZE);
-    const row = Math.floor(y / TILE_SIZE);
-    return this.map[row] && this.map[row][col];
+  private showLevelComplete() {
+    if (this.dave.reachedEndMap) {
+      console.log("Dave has reached the end of the map");
+      this.currentLevel++;
+      if (this.currentLevel < this.levels.length) {
+        this.loadlevel();
+      } else {
+        console.log("All levels completed");
+        this.dave.velX = 0;
+        this.isLevelComplete = true;
+      }
+    } else {
+      this.map = Level_complete;
+
+      this.isLevelComplete = true;
+      this.initializeTiles(this.map);
+      this.setCharacterPosition();
+      this.dave.isDoor = false;
+
+      this.gameCtx.clearRect(
+        0,
+        0,
+        this.gameCanvas.width,
+        this.gameCanvas.height
+      );
+      this.renderGame();
+      this.dave.moveCharacterAutomatically();
+    }
   }
+
+  // private getTile(x: number, y: number) {
+  //   const col = Math.floor(x / TILE_SIZE);
+  //   const row = Math.floor(y / TILE_SIZE);
+  //   return this.map[row] && this.map[row][col];
+  // }
 }
 
 export { Game };

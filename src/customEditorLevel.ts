@@ -1,12 +1,29 @@
 import { SolidTile } from "./SolidTile";
-import { CustomMap, CustomMap1, LEVEL1_MAP, LEVEL2_MAP } from "./levels";
+import {
+  CustomMap,
+  CustomMap1,
+  LEVEL1_MAP,
+  LEVEL2_MAP,
+  Level_complete,
+} from "./levels";
 import { Game } from "./game";
 import { Score } from "./score";
 
 const TILE_SIZE = 64;
 const DRAW_SIZE = 50;
 
+export function isLevelCompleteMap(level: (string | null)[][]): boolean {
+  return (
+    level[4] &&
+    level[4].every((tile) => tile === "P") &&
+    level[5] &&
+    level[5][0] === "E" &&
+    level[5][1] === "DA"
+  );
+}
+
 export class CustomEditorLevel {
+  private levelNames: string[];
   private mapCanvas: HTMLCanvasElement;
   private mapCtx: CanvasRenderingContext2D;
   private tileSelector: HTMLElement;
@@ -35,6 +52,8 @@ export class CustomEditorLevel {
     this.nextLevelButton = document.getElementById(
       "next-level"
     ) as HTMLButtonElement;
+    this.levelNames = this.levels;
+    console.log;
 
     this.output = document.createElement("textarea");
     this.errorDisplay = document.getElementById("errorDisplay")!;
@@ -42,6 +61,9 @@ export class CustomEditorLevel {
     this.currentTile = "B";
     this.levels = [
       LEVEL1_MAP.map((row) => row.map((tile) => (tile === " " ? null : tile))),
+      // Level_complete.map((row) =>
+      //   row.map((tile) => (tile === " " ? null : tile))
+      // ),
       CustomMap.map((row) => row.map((tile) => (tile === " " ? null : tile))),
       CustomMap1.map((row) => row.map((tile) => (tile === " " ? null : tile))),
     ];

@@ -7,27 +7,23 @@ export class Score {
     this.ctx = ctx;
   }
 
-  reset() {
-    this.score = 0;
-    this.updateDisplay();
-  }
-
-  increment() {
-    this.score += 1;
-  }
-
-  updateDisplay() {
-    // this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    // this.ctx.fillStyle = "white";
-    // this.ctx.font = "bold 24px Arial";
-    // this.ctx.fillText(`Score: ${this.score}`, 10, 30);
-
-    this.ctx.fillStyle = "white";
-    this.ctx.font = "bold 24px Arial";
-    this.ctx.fillText(`LEVEL ${3}`, 400, 30);
-
-    this.ctx.fillStyle = "white";
-    this.ctx.font = "bold 24px Arial";
-    this.ctx.fillText(`DAVES ${3}`, 800, 30);
+  updateDisplay(
+    score: number,
+    level: number,
+    lives: number,
+    message: string | null
+  ) {
+    // this.ctx.clearRect(0, 0, this.ctx.canvas.width, 50);
+    if (message == null) {
+      this.ctx.fillStyle = "white";
+      this.ctx.font = "bold 24px Arial";
+      this.ctx.fillText(`Score: ${score}`, 10, 30);
+      this.ctx.fillText(`Level: ${level}`, 200, 30);
+      this.ctx.fillText(`Lives: ${lives}`, 400, 30);
+    } else {
+      this.ctx.fillStyle = "white";
+      this.ctx.font = "bold 24px Arial";
+      this.ctx.fillText(message, 10, 30);
+    }
   }
 }
