@@ -22,7 +22,7 @@ export class EdibleTile extends Tile {
     sw?: number,
     sh?: number
   ) {
-    super(type);
+    super(x, y, type);
     this.size = 64;
     this.sw = sw || this.size;
     this.sh = sh || this.size;

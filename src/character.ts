@@ -1,8 +1,9 @@
 import { GameEntity } from "./gameEntity";
 import { Tile } from "./tiles/tile";
-import { TILE_SIZE } from "./constant";
+import { TILE_SIZE, harmingTiles } from "./constant";
 import { SolidTile } from "./tiles/SolidTile";
 import { EdibleTile } from "./tiles/edibleTIle";
+import { HarmingTile } from "./tiles/harmingTiles";
 
 interface InputKeys {
   right: { hold: boolean };
@@ -28,12 +29,13 @@ export class Character extends GameEntity {
   spriteImage: HTMLImageElement;
   keys: InputKeys;
   gravity: number;
-  private JUMP_SPEED = -15;
+  JUMP_SPEED = -15;
   grounded: boolean;
   colliding: boolean;
   moveAutomatically: boolean;
   score: number;
   isDoor: boolean;
+  lives: number;
   reachedEndMap: boolean;
   controlsEnabled: boolean;
   utilityMessage: string;
@@ -41,6 +43,8 @@ export class Character extends GameEntity {
   levelUpMessage: string | null;
   frameCounter: number;
   framedelay: number;
+  explosionComplete: boolean;
+  explosionFrame: number;
 
   constructor({
     posX,
@@ -55,14 +59,18 @@ export class Character extends GameEntity {
       height: Tile.size,
       solidTiles,
       edibleTiles,
+      harmingTiles,
     });
 
-    this.velX = 3.5;
+    console.log("harmingTIles", harmingTiles);
+
+    this.velX = 4;
     this.velY = 2;
     this.direction = 1;
     this.jumping = false;
     this.canJump = true;
     this.jumpTarget = 0;
+    this.lives = 3;
     this.animationFrame = 0;
     this.gravity = 0.2;
     this.grounded = false;
@@ -77,6 +85,8 @@ export class Character extends GameEntity {
     this.levelUpMessage = null;
     this.frameCounter = 0;
     this.framedelay = 10;
+    this.explosionComplete = true;
+    this.explosionFrame = 0;
 
     this.spriteImage = new Image();
     this.spriteImage.src = "assets/sprites/tileset.png";
@@ -100,11 +110,9 @@ export class Character extends GameEntity {
       if (e.key === "ArrowRight") {
         keys.right.hold = true;
         this.direction = 1;
-        if (!this.jumping) this.animationFrame = (this.animationFrame + 1) % 4;
       } else if (e.key === "ArrowLeft") {
         keys.left.hold = true;
         this.direction = -1;
-        if (!this.jumping) this.animationFrame = (this.animationFrame + 1) % 4;
       } else if (e.key === "ArrowUp") {
         this.velY -= 10;
         this.jumping = true;
@@ -126,13 +134,12 @@ export class Character extends GameEntity {
   draw(
     ctx: CanvasRenderingContext2D,
     dw: number = Tile.size,
-    dh: number = Tile.size
+    dh: number = Tile.size,
+    scale: number = 1
   ) {
     const spriteX = this.getSpriteX();
-    const spriteY = 2 * Tile.size;
-
-    ctx.fillStyle = "rgba(0,255,0,0.5)";
-    ctx.fillRect(this.posX, this.posY + 5, TILE_SIZE - 8, TILE_SIZE - 5);
+    console.log("spritex", spriteX);
+    const spriteY = this.explosionComplete ? 2 * Tile.size : 10 * Tile.size;
 
     ctx.drawImage(
       this.spriteImage,
@@ -142,14 +149,27 @@ export class Character extends GameEntity {
       Tile.size,
       this.posX,
       this.posY,
-      dw,
-      dh
+      dw * scale,
+      dh * scale
     );
   }
 
   private getSpriteX(): number {
-    const frameOffset = this.direction === 1 ? 1 : 5;
-    return ((this.animationFrame % 4) + frameOffset) * Tile.size;
+    if (!this.explosionComplete) {
+      const explosionFrameCount = 2;
+      const explosionFrameOffset = 0;
+      return (
+        ((this.explosionFrame % explosionFrameCount) + explosionFrameOffset) *
+        Tile.size
+      );
+    } else {
+      const defaultFrameCount = 3;
+      const defaultFrameOffset = this.direction === 1 ? 1 : 5;
+      return (
+        ((this.animationFrame % defaultFrameCount) + defaultFrameOffset) *
+        Tile.size
+      );
+    }
   }
 
   moveCharacterAutomatically() {
@@ -191,6 +211,15 @@ export class Character extends GameEntity {
 
   private handleInputMovement() {
     this.posY += this.velY;
+    if (this.keys.right.hold || this.keys.left.hold) {
+      this.frameCounter++;
+      if (this.frameCounter >= this.framedelay) {
+        this.animationFrame = (this.animationFrame + 1) % 3;
+        this.frameCounter = 0;
+      }
+    } else {
+      this.animationFrame = 0;
+    }
 
     if (this.keys.left.hold) {
       this.posX -= this.velX;
@@ -216,7 +245,7 @@ export class Character extends GameEntity {
     this.grounded = false;
 
     for (let tile of this.solidTiles) {
-      this.handleTileCollision(tile, playerRect);
+      this.handleSolidTileCollision(tile, playerRect);
     }
 
     for (let i = 0; i < this.edibleTiles.length; i++) {
@@ -230,9 +259,12 @@ export class Character extends GameEntity {
         this.handleEdibleTileCollision(tile, crownExists, i);
       }
     }
+    for (let tile of this.harmingTiles) {
+      this.handleHarmingTileCollision(tile, playerRect);
+    }
   }
 
-  private handleTileCollision(tile: SolidTile, playerRect: any) {
+  private handleSolidTileCollision(tile: SolidTile, playerRect: any) {
     const tileRect = this.getTileRect(tile);
 
     const groundCheckRect = {
@@ -251,6 +283,7 @@ export class Character extends GameEntity {
     }
   }
 
+  // TODO resolve any
   private resolveTileCollision(playerRect: any, tileRect: any) {
     if (playerRect.bottom >= tileRect.top && playerRect.top <= tileRect.top) {
       this.posY = tileRect.top - TILE_SIZE;
@@ -266,14 +299,12 @@ export class Character extends GameEntity {
       playerRect.right >= tileRect.left &&
       playerRect.left <= tileRect.left
     ) {
-      this.colliding = true;
       this.posX -= 5;
       this.animationFrame = 0;
     } else if (
       playerRect.left <= tileRect.right &&
       playerRect.right >= tileRect.right
     ) {
-      this.colliding = true;
       this.posX = tileRect.right - 0.01;
     }
   }
@@ -286,7 +317,6 @@ export class Character extends GameEntity {
     this.score += tile.value;
     if (tile.type === "Y") {
       this.utilityMessage = "Go through the door";
-      console.log("Key is taken");
       tile.consumed = true;
     }
 
@@ -299,6 +329,17 @@ export class Character extends GameEntity {
       }
     } else {
       this.edibleTiles.splice(index, 1);
+    }
+  }
+
+  private handleHarmingTileCollision(tile: HarmingTile, playerRect: any) {
+    const tileRect = this.getTileRect(tile);
+    if (isColliding(playerRect, tileRect)) {
+      this.lives -= 1;
+      if (this.lives > 0) this.handleExplosion();
+      else {
+        console.log("Gameover");
+      }
     }
   }
 
@@ -318,6 +359,38 @@ export class Character extends GameEntity {
       top: tile.y,
       bottom: tile.y + TILE_SIZE,
     };
+  }
+
+  private respawn() {
+    this.posX -= 50;
+    this.controlsEnabled = true;
+    this.explosionComplete = true;
+    this.posX = 300;
+    this.posY = 200;
+
+    this.jumping = false;
+    this.grounded = false;
+  }
+
+  handleExplosion() {
+    this.explosionComplete = false;
+    this.explosionFrame = 0;
+    this.frameCounter = 0;
+    this.controlsEnabled = false;
+    const totalDuration = 2000;
+    const explosionFrameCount = 4;
+    const intervalDuration = 150;
+
+    const interval = setInterval(() => {
+      if (this.frameCounter >= totalDuration / intervalDuration) {
+        clearInterval(interval);
+        this.explosionComplete = true;
+        this.respawn();
+      } else {
+        this.explosionFrame = (this.explosionFrame + 1) % explosionFrameCount;
+        this.frameCounter++;
+      }
+    }, intervalDuration);
   }
 }
 

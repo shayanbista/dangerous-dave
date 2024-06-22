@@ -10,7 +10,6 @@ export class HarmingTile extends Tile {
   public x: number;
   public y: number;
   consumed: boolean;
-  value: number;
   frameIndex: number;
   frameCount: number;
   frameDelay: number;
@@ -27,7 +26,7 @@ export class HarmingTile extends Tile {
     frameCount: number = 1,
     frameDelay: number = 10
   ) {
-    super(type);
+    super(x, y, type);
     this.size = 64;
     this.sw = sw || this.size;
     this.sh = sh || this.size;
@@ -36,7 +35,6 @@ export class HarmingTile extends Tile {
     this.sy = j * this.size;
     this.x = x;
     this.y = y;
-    this.value = 0;
     this.consumed = false;
 
     this.frameIndex = 0;

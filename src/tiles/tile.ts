@@ -1,12 +1,15 @@
 export class Tile {
   type: string;
-  constructor(type: string) {
+  x: number;
+  y: number;
+  constructor(x: number, y: number, type: string) {
+    this.x = x;
+    this.y = y;
     this.type = type;
   }
   static size = 64;
   static types = {
     solid: ["B", "R", "P", "K", "L", "T"],
-    // solid: ["R", "P", "K", "L", "T"],
     pickable: ["D", "RD", "PD", "G", "RNG", "Key", "C", "Y", "J", "E"],
     lethal: ["F", "S"],
   };

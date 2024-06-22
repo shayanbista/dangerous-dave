@@ -1,5 +1,7 @@
+import { harmingTiles } from "./constant";
 import { SolidTile } from "./tiles/SolidTile";
 import { EdibleTile } from "./tiles/edibleTIle";
+import { HarmingTile } from "./tiles/harmingTiles";
 
 interface GameEntityProps {
   posX: number;
@@ -8,6 +10,7 @@ interface GameEntityProps {
   height: number;
   solidTiles: SolidTile[];
   edibleTiles: EdibleTile[];
+  harmingTiles: HarmingTile[];
 }
 
 export class GameEntity implements GameEntityProps {
@@ -25,11 +28,14 @@ export class GameEntity implements GameEntityProps {
     this.height = height;
     this.solidTiles = solidTiles;
     this.edibleTiles = edibleTiles;
+    this.harmingTiles = harmingTiles;
   }
+
   posX: number;
   posY: number;
   width: number;
   height: number;
   solidTiles: SolidTile[];
   edibleTiles: EdibleTile[];
+  harmingTiles: HarmingTile[];
 }

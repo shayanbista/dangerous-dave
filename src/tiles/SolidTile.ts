@@ -1,11 +1,12 @@
 import { Tile } from "./tile";
 
-export class SolidTile {
+export class SolidTile extends Tile {
   private size: number;
   private sw: number;
   private sh: number;
   private sx: number;
   private sy: number;
+  public type: string = "solid";
   public static image: HTMLImageElement;
   public x: number;
   public y: number;
@@ -19,6 +20,7 @@ export class SolidTile {
     sw?: number,
     sh?: number
   ) {
+    super(x, y, "solid");
     this.size = 64;
     this.sw = sw || this.size;
     this.sh = sh || this.size;

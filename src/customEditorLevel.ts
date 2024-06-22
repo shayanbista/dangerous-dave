@@ -212,65 +212,6 @@ export class CustomEditorLevel {
     });
   }
 
-  // private getTileCoordinates(key: string): [number, number] {
-  //   let coordinates: [number, number];
-  //   switch (key) {
-  //     case "B": // BlackTile
-  //       coordinates = [0, 0];
-  //       break;
-  //     case "R": // RedTile
-  //       coordinates = [1, 0];
-  //       break;
-  //     case "P": // PurpleTile
-  //       coordinates = [2, 0];
-  //       break;
-  //     case "K": // RockTile
-  //       coordinates = [3, 0];
-  //       break;
-  //     case "L": // LavaTile
-  //       coordinates = [4, 0];
-  //       break;
-  //     case "T": // BlueBlock
-  //       coordinates = [5, 0];
-  //       break;
-  //     case "D": // Diamond
-  //       coordinates = [0, 1];
-  //       break;
-  //     case "RD": // RedDiamond
-  //       coordinates = [1, 1];
-  //       break;
-  //     case "DA": // Dave
-  //       coordinates = [0, 2];
-  //       break;
-  //     case "G": // Gun
-  //       coordinates = [3, 1];
-  //       break;
-  //     case "RNG": // Ring
-  //       coordinates = [4, 1];
-  //       break;
-  //     case "Key": // Key
-  //       coordinates = [5, 1];
-  //       break;
-  //     case "C": // Crown
-  //       coordinates = [6, 1];
-  //       break;
-  //     case "Y": // Trophy
-  //       coordinates = [7, 1];
-  //       break;
-  //     case "J": // Jetpack
-  //       coordinates = [8, 1];
-  //       break;
-  //     case "E": // ExitDoor
-  //       coordinates = [1, 8];
-  //       break;
-  //     default:
-  //       coordinates = [0, 0];
-  //       break;
-  //   }
-
-  //   return coordinates;
-  // }
-
   private getTileCoordinates(key: string): [number, number] {
     let coordinates: [number, number];
     switch (key) {
@@ -427,8 +368,7 @@ export class CustomEditorLevel {
     }
 
     if (errorMessages.length === 0) {
-      // this.map.unshift(Array(this.map[0].length).fill("B"));
-      // this.map.push(Array(this.map[0].length).fill("B"));
+
       this.output.value = JSON.stringify(
         this.map.map((row) => row.map((tile) => (tile ? tile : null)))
       );
