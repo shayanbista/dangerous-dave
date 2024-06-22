@@ -154,6 +154,23 @@ export class Character extends GameEntity {
     );
   }
 
+  private updateAnimationFrame() {
+    if (this.keys.right.hold || this.keys.left.hold || this.moveAutomatically) {
+      if (this.moveAutomatically) {
+        console.log("move automatically is working");
+        console.log("animation frame", this.animationFrame);
+        console.log("framecounter", this.frameCounter);
+      }
+      this.frameCounter++;
+      if (this.frameCounter >= this.framedelay) {
+        this.animationFrame = (this.animationFrame + 1) % 3;
+        this.frameCounter = 0;
+      }
+    } else {
+      this.animationFrame = 0;
+    }
+  }
+
   private getSpriteX(): number {
     if (!this.explosionComplete) {
       const explosionFrameCount = 2;
@@ -173,10 +190,13 @@ export class Character extends GameEntity {
   }
 
   moveCharacterAutomatically() {
+    this.moveAutomatically = true;
     this.posX += this.velX;
     this.direction = 1;
     this.controlsEnabled = false;
-    this.moveAutomatically = true;
+    this.animationFrame++;
+
+    this.updateAnimationFrame();
     this.levelUpMessage = "More levels to go!";
   }
 
@@ -188,6 +208,7 @@ export class Character extends GameEntity {
 
   update() {
     this.applyGravity();
+    this.updateAnimationFrame();
     if (this.moveAutomatically) this.handleAutomaticMovement();
     this.handleInputMovement();
     this.handleCollision();
@@ -203,6 +224,7 @@ export class Character extends GameEntity {
   private handleAutomaticMovement() {
     this.moveCharacterAutomatically();
     if (this.posX > 900) {
+      this.animationFrame++;
       this.reachedEndMap = true;
       console.log("Character.ts: reachedEndMap =", this.reachedEndMap);
       this.posX = 0;

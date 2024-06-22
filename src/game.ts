@@ -1,4 +1,3 @@
-
 import { Character } from "./character";
 import { TILE_SIZE, edibleTiles, harmingTiles, solidTiles } from "./constant";
 import { Level_complete } from "./levels";
@@ -75,7 +74,7 @@ class Game {
     this.gameCtx.font = "bold 24px Arial";
     this.gameCtx.fillText(
       this.dave.utilityMessage,
-      50,
+      400,
       this.gameCanvas.height - 20
     );
   }
@@ -290,6 +289,7 @@ class Game {
     this.scoreSection();
     this.footerSection();
     this.dave.update();
+
     this.renderGame();
 
     if (this.dave.reachedEndMap) {
@@ -333,4 +333,3 @@ class Game {
 }
 
 export { Game };
-
