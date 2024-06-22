@@ -1,5 +1,5 @@
-import { SolidTile } from "./SolidTile";
-import { EdibleTile } from "./edibleTIle";
+import { SolidTile } from "./tiles/SolidTile";
+import { EdibleTile } from "./tiles/edibleTIle";
 
 interface GameEntityProps {
   posX: number;

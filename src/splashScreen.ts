@@ -1,5 +1,5 @@
 // import { initializeMapEditor } from "./customEditorLevel";
-import { SolidTile } from "./SolidTile";
+import { SolidTile } from "./tiles/SolidTile";
 import { startEditor } from "./customEditorLevel";
 
 class SplashScreen {

@@ -1,4 +1,4 @@
-import { SolidTile } from "./SolidTile";
+import { SolidTile } from "./tiles/SolidTile";
 import {
   CustomMap,
   CustomMap1,
@@ -112,10 +112,10 @@ export class CustomEditorLevel {
       Diamond: "D",
       RedDiamond: "RD",
       Dave: "DA",
-      Gun: "G",
-      Ring: "RNG",
+      Fire: "F",
+      Tentacles: "TE",
       Key: "Key",
-      Crown: "C",
+      Water: "W",
       Trophy: "Y",
       Jetpack: "J",
       ExitDoor: "E",
@@ -158,17 +158,17 @@ export class CustomEditorLevel {
         case "Dave":
           [spriteX, spriteY] = [0, 2];
           break;
-        case "Gun":
-          [spriteX, spriteY] = [3, 1];
+        case "Fire":
+          [spriteX, spriteY] = [0, 5];
           break;
-        case "Ring":
-          [spriteX, spriteY] = [4, 1];
+        case "Tentacles":
+          [spriteX, spriteY] = [0, 6];
           break;
         case "Key":
           [spriteX, spriteY] = [5, 1];
           break;
-        case "Crown":
-          [spriteX, spriteY] = [6, 1];
+        case "Water":
+          [spriteX, spriteY] = [0, 7];
           break;
         case "Trophy":
           [spriteX, spriteY] = [7, 1];
@@ -212,6 +212,65 @@ export class CustomEditorLevel {
     });
   }
 
+  // private getTileCoordinates(key: string): [number, number] {
+  //   let coordinates: [number, number];
+  //   switch (key) {
+  //     case "B": // BlackTile
+  //       coordinates = [0, 0];
+  //       break;
+  //     case "R": // RedTile
+  //       coordinates = [1, 0];
+  //       break;
+  //     case "P": // PurpleTile
+  //       coordinates = [2, 0];
+  //       break;
+  //     case "K": // RockTile
+  //       coordinates = [3, 0];
+  //       break;
+  //     case "L": // LavaTile
+  //       coordinates = [4, 0];
+  //       break;
+  //     case "T": // BlueBlock
+  //       coordinates = [5, 0];
+  //       break;
+  //     case "D": // Diamond
+  //       coordinates = [0, 1];
+  //       break;
+  //     case "RD": // RedDiamond
+  //       coordinates = [1, 1];
+  //       break;
+  //     case "DA": // Dave
+  //       coordinates = [0, 2];
+  //       break;
+  //     case "G": // Gun
+  //       coordinates = [3, 1];
+  //       break;
+  //     case "RNG": // Ring
+  //       coordinates = [4, 1];
+  //       break;
+  //     case "Key": // Key
+  //       coordinates = [5, 1];
+  //       break;
+  //     case "C": // Crown
+  //       coordinates = [6, 1];
+  //       break;
+  //     case "Y": // Trophy
+  //       coordinates = [7, 1];
+  //       break;
+  //     case "J": // Jetpack
+  //       coordinates = [8, 1];
+  //       break;
+  //     case "E": // ExitDoor
+  //       coordinates = [1, 8];
+  //       break;
+  //     default:
+  //       coordinates = [0, 0];
+  //       break;
+  //   }
+
+  //   return coordinates;
+  // }
+
   private getTileCoordinates(key: string): [number, number] {
     let coordinates: [number, number];
     switch (key) {
@@ -242,17 +301,17 @@ export class CustomEditorLevel {
       case "DA": // Dave
         coordinates = [0, 2];
         break;
-      case "G": // Gun
-        coordinates = [3, 1];
+      case "F": // Fire
+        coordinates = [0, 5];
         break;
-      case "RNG": // Ring
-        coordinates = [4, 1];
+      case "TE": // Tentacles
+        coordinates = [0, 6];
+        break;
+      case "W": // Water
+        coordinates = [0, 7];
         break;
       case "Key": // Key
         coordinates = [5, 1];
-        break;
-      case "C": // Crown
-        coordinates = [6, 1];
         break;
       case "Y": // Trophy
         coordinates = [7, 1];

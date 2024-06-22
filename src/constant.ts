@@ -1,11 +1,13 @@
-import { SolidTile } from "./SolidTile";
-import { EdibleTile } from "./edibleTIle";
+import { SolidTile } from "./tiles/SolidTile";
+import { EdibleTile } from "./tiles/edibleTIle";
+import { HarmingTile } from "./tiles/harmingTiles";
 
 export const TILE_SIZE = 50;
 export const DRAW_SIZE = 50;
 
 export const solidTiles: SolidTile[] = [];
 export const edibleTiles: EdibleTile[] = [];
+export const harmingTiles: HarmingTile[] = [];
 
 export const TILES = {
   BlackTile: "B", // 0,0
