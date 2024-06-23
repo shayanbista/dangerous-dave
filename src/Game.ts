@@ -94,6 +94,8 @@ class Game {
     this.gameCtx.fillText(this.dave.utilityMessage, 400, this.gameCanvas.height - 20);
   }
 
+  // Game check
+
   private setCharacterPosition() {
     for (let y = 0; y < this.map.length; y++) {
       for (let x = 0; x < this.map[y].length; x++) {
