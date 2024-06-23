@@ -42,7 +42,7 @@ export class CustomEditorLevel {
     //   CustomMap1.map((row) => row.map((tile) => (tile === " " ? '' : tile))),
     //   Level_3Map.map((row) => row.map((tile) => (tile === " " ? '' : tile))),
     // ];
-    this.levels = [LEVEL1_MAP];
+    this.levels = [LEVEL1_MAP, CustomMap, CustomMap1];
     this.currentLevelIndex = 0;
     this.map = this.levels[this.currentLevelIndex];
 

@@ -7,13 +7,13 @@ import { EdibleTile } from "./tiles/edibleTIle";
 import { HarmingTile } from "./tiles/harmingTiles";
 
 class Game {
-  // private levels: any;
   private gameCanvas: HTMLCanvasElement;
   private gameCtx: CanvasRenderingContext2D;
   private dave: Character;
   public score: Score | undefined;
   private currentLevel: number;
   private map: string[][];
+  private view: { x: number; y: number; width: number; height: number };
   paused: boolean;
   private scoreboardHeight: number = 50;
   isLevelComplete: boolean;
@@ -35,7 +35,13 @@ class Game {
     this.isLevelComplete = false;
     this.map = this.levels[this.currentLevel];
     this.paused = false;
-    console.log("thismap", this.map);
+    this.view = {
+      x: 0,
+      y: 0,
+      width: canvasWidth,
+      height: canvasHeight,
+    };
+
     this.dave = new Character({ posX: 0, posY: 0, solidTiles, edibleTiles });
     this.totalScore = 0;
     window.addEventListener("keydown", (event) => {
@@ -43,6 +49,7 @@ class Game {
         this.togglePause();
       }
     });
+    console.log("map", this.levels);
 
     this.initializeGame();
   }
@@ -93,8 +100,6 @@ class Game {
     this.gameCtx.font = "bold 24px Arial";
     this.gameCtx.fillText(this.dave.utilityMessage, 400, this.gameCanvas.height - 20);
   }
-
-  // Game check
 
   private setCharacterPosition() {
     for (let y = 0; y < this.map.length; y++) {
@@ -247,7 +252,8 @@ class Game {
   }
 
   private isInDoor() {
-    if (this.dave.isDoor) {
+    console.log("key of dave", this.dave.collectedItem.key);
+    if (this.dave.collectedItem.key && this.dave.isDoor) {
       this.totalScore = this.dave.score;
       if (this.currentLevel < this.levels.length - 1) {
         if (this.map.some((row) => row.includes("E"))) {
@@ -273,23 +279,26 @@ class Game {
   }
 
   private renderTiles() {
+    const viewPortWidth = TILE_SIZE * 19;
+    this.view.x = Math.floor(this.dave.posX / viewPortWidth) * viewPortWidth;
+
     for (const tile of solidTiles) {
-      tile.draw(this.gameCtx, tile.x, tile.y, TILE_SIZE, TILE_SIZE);
+      tile.draw(this.gameCtx, tile.x - this.view.x, tile.y, TILE_SIZE, TILE_SIZE);
     }
     for (const tile of edibleTiles) {
       if (!tile.consumed) {
-        tile.draw(this.gameCtx, tile.x, tile.y, TILE_SIZE, TILE_SIZE);
+        tile.draw(this.gameCtx, tile.x - this.view.x, tile.y, TILE_SIZE, TILE_SIZE);
       }
     }
 
     for (const tile of harmingTiles) {
-      tile.draw(this.gameCtx, tile.x, tile.y, TILE_SIZE, TILE_SIZE);
+      tile.draw(this.gameCtx, tile.x - this.view.x, tile.y, TILE_SIZE, TILE_SIZE);
     }
   }
 
   private renderGame() {
     this.renderTiles();
-    this.dave.draw(this.gameCtx, TILE_SIZE, TILE_SIZE);
+    this.dave.draw(this.gameCtx, this.view.x, this.view.y);
   }
 
   private gameLoop() {

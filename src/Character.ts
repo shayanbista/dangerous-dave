@@ -36,7 +36,7 @@ export class Character extends GameEntity {
   spriteImage: HTMLImageElement;
   keys: InputKeys;
   gravity: number;
-  JUMP_SPEED = -15;
+  JUMP_SPEED = -10;
   grounded: boolean;
   colliding: boolean;
   moveAutomatically: boolean;
@@ -54,6 +54,7 @@ export class Character extends GameEntity {
   explosionFrame: number;
   isDead: boolean;
   gameOver: boolean;
+  collectedItem: { [key: string]: boolean };
 
   constructor({ posX, posY, solidTiles = [], edibleTiles = [] }: CharacterProps) {
     super({
@@ -74,7 +75,7 @@ export class Character extends GameEntity {
     this.jumpTarget = 0;
     this.lives = 3;
     this.animationFrame = 0;
-    this.gravity = 0.2;
+    this.gravity = 0.5;
     this.grounded = false;
     this.colliding = false;
     this.moveAutomatically = false;
@@ -91,6 +92,9 @@ export class Character extends GameEntity {
     this.explosionFrame = 0;
     this.isDead = false;
     this.gameOver = false;
+    this.posX = 150;
+    this.posY = 100;
+    this.collectedItem = { key: false };
 
     this.spriteImage = new Image();
     this.spriteImage.src = "assets/sprites/tileset.png";
@@ -125,9 +129,10 @@ export class Character extends GameEntity {
     }
   }
 
-  draw(ctx: CanvasRenderingContext2D, dw: number = Tile.size, dh: number = Tile.size, scale: number = 1) {
+  draw(ctx: CanvasRenderingContext2D, viewX: number, viewY: number) {
     const spriteX = this.getSpriteX();
     console.log("spritex", spriteX);
+    const scale = 1;
     const spriteY = this.explosionComplete ? 2 * Tile.size : 10 * Tile.size;
 
     ctx.drawImage(
@@ -136,10 +141,10 @@ export class Character extends GameEntity {
       spriteY,
       Tile.size,
       Tile.size,
-      this.posX,
-      this.posY,
-      dw * scale,
-      dh * scale
+      this.posX - viewX,
+      this.posY - viewY,
+      TILE_SIZE * scale,
+      TILE_SIZE * scale
     );
   }
 
@@ -200,23 +205,18 @@ export class Character extends GameEntity {
         document.getElementById("splashScreen")!.style.display = "block";
       }, 4000);
     }
-
-    if (this.posX > canvasWidth || this.posY > canvasHeight) {
-      this.posX = 100;
-      this.posY = 100;
-    }
   }
 
   private applyGravity() {
     if (!this.grounded) {
-      this.velY += 1;
+      this.velY += this.gravity;
       this.canJump = false;
     }
   }
 
   private handleAutomaticMovement() {
     this.moveCharacterAutomatically();
-    if (this.posX > 900) {
+    if (this.posX > 880) {
       this.animationFrame++;
       this.reachedEndMap = true;
       console.log("Character.ts: reachedEndMap =", this.reachedEndMap);
@@ -246,7 +246,7 @@ export class Character extends GameEntity {
   }
 
   handleCollision() {
-    const crownExists = this.edibleTiles.some((tile) => tile.type === "Y");
+    const keyExists = this.edibleTiles.some((tile) => tile.type === "Y");
 
     this.grounded = false;
 
@@ -262,7 +262,7 @@ export class Character extends GameEntity {
       this.isDoor = false;
 
       if (isColliding(this.playerRect, tileRect)) {
-        this.handleEdibleTileCollision(tile, crownExists, i);
+        this.handleEdibleTileCollision(tile, keyExists, i);
       }
     }
     for (let tile of this.harmingTiles) {
@@ -307,14 +307,19 @@ export class Character extends GameEntity {
   private handleEdibleTileCollision(tile: EdibleTile, crownExists: boolean, index: number) {
     this.score += tile.value;
     if (tile.type === "Y") {
+      this.collectedItem.key = true;
       this.utilityMessage = "Go through the door";
       tile.consumed = true;
     }
 
+    console.log("collectedItem", this.collectedItem);
+
     if (tile.type === "door") {
-      if (!crownExists) {
+      if (this.collectedItem.key === true) {
         tile.consumed = false;
         this.isDoor = true;
+        console.log("dave reached here");
+        // this.collectedItem.key = false;
       } else {
         this.utilityMessage = "Take the key to go through the door";
       }
@@ -390,7 +395,6 @@ export class Character extends GameEntity {
   }
 }
 
-//  check collision
 function isColliding(rect1: Rect, rect2: Rect): boolean {
   return rect1.left < rect2.right && rect1.right > rect2.left && rect1.top < rect2.bottom && rect1.bottom > rect2.top;
 }
