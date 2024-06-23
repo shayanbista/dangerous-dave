@@ -1,4 +1,4 @@
 {
   "printWidth":120,
-  "overrides": [{"files":"./src/levels.ts" ,"options": {"printWidth":300}}]
+  "overrides": [{"files":"./src/levels.ts" ,"options": {"printWidth":900}}]
 }

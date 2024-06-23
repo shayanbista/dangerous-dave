@@ -76,11 +76,11 @@ export class CustomEditorLevel {
   private drawTileSelector() {
     this.tileSelector.innerHTML = "";
     const TILES: { [key: string]: string } = {
-      BlackTile: "B",
+      BlueBlock: "T",
       RedTile: "R",
       PurpleTile: "P",
       RockTile: "K",
-      LavaTile: "L",
+      Gun: "G",
       Steel: "S",
       Diamond: "D",
       RedDiamond: "RD",
@@ -104,8 +104,8 @@ export class CustomEditorLevel {
 
       let spriteX: number, spriteY: number;
       switch (key) {
-        case "BlackTile":
-          [spriteX, spriteY] = [0, 0];
+        case "BlueBlock":
+          [spriteX, spriteY] = [0, 5];
           break;
         case "RedTile":
           [spriteX, spriteY] = [1, 0];
@@ -116,8 +116,8 @@ export class CustomEditorLevel {
         case "RockTile":
           [spriteX, spriteY] = [3, 0];
           break;
-        case "LavaTile":
-          [spriteX, spriteY] = [4, 0];
+        case "Gun":
+          [spriteX, spriteY] = [3, 1];
           break;
         case "Steel":
           [spriteX, spriteY] = [4, 8];
@@ -191,8 +191,8 @@ export class CustomEditorLevel {
       case "K": // RockTile
         coordinates = [3, 0];
         break;
-      case "L": // LavaTile
-        coordinates = [4, 0];
+      case "G": // LavaTile
+        coordinates = [3, 1];
         break;
       case "T": // BlueBlock
         coordinates = [5, 0];

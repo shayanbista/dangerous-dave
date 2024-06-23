@@ -42,7 +42,7 @@ class Game {
       height: canvasHeight,
     };
 
-    this.dave = new Character({ posX: 0, posY: 0, solidTiles, edibleTiles });
+    this.dave = new Character({ posX: 0, posY: 0 });
     this.totalScore = 0;
     window.addEventListener("keydown", (event) => {
       if (event.key === "p") {
@@ -70,7 +70,6 @@ class Game {
     this.gameCtx.fillStyle = "white";
     this.gameCtx.textAlign = "center";
     this.gameCtx.fillText("Paused", this.gameCanvas.width / 2, this.gameCanvas.height / 2);
-
     this.gameCtx.fillText("Press P to resume again", this.gameCanvas.width / 1.8, this.gameCanvas.height / 1.5);
   }
 
@@ -108,8 +107,6 @@ class Game {
           this.dave = new Character({
             posX: x * TILE_SIZE,
             posY: y * TILE_SIZE + this.scoreboardHeight,
-            solidTiles,
-            edibleTiles,
           });
           this.dave.score = this.totalScore;
           return;
@@ -132,7 +129,7 @@ class Game {
 
           switch (tile) {
             case "B":
-              [spriteX, spriteY] = [0, 0];
+              [spriteX, spriteY] = [0, 5];
               type = "solid";
               break;
             case "R":
@@ -169,7 +166,7 @@ class Game {
               break;
             case "G":
               [spriteX, spriteY] = [3, 1];
-              type = "G";
+              type = "Gun";
               break;
             case "RNG":
               [spriteX, spriteY] = [4, 1];
@@ -216,7 +213,6 @@ class Game {
           if (type === "solid") {
             let tile1 = new SolidTile(spriteX, spriteY, x * TILE_SIZE, y * TILE_SIZE + this.scoreboardHeight, 64, 64);
             solidTiles.push(tile1);
-            console.log(`Added solid tile: ${tile} at (${x}, ${y})`); // Log solid tile
           } else if (type === "Fire" || type === "Tentacles" || type === "Water") {
             let tile3 = new HarmingTile(
               spriteX,
@@ -229,7 +225,7 @@ class Game {
               type === "Water" ? 3 : 4,
               10
             );
-            console.log("Created harming tile:", tile3);
+
             harmingTiles.push(tile3);
           } else {
             let tile2 = new EdibleTile(
@@ -241,19 +237,17 @@ class Game {
               64,
               64
             );
+            console.log("ediboe", tile2);
             tile2.scorevalue();
             edibleTiles.push(tile2);
           }
         }
       }
     }
-
-    console.log("Final solid tiles array:", solidTiles);
   }
 
   private isInDoor() {
-    console.log("key of dave", this.dave.collectedItem.key);
-    if (this.dave.collectedItem.key && this.dave.isDoor) {
+    if (this.dave.collectedItem.door) {
       this.totalScore = this.dave.score;
       if (this.currentLevel < this.levels.length - 1) {
         if (this.map.some((row) => row.includes("E"))) {
@@ -336,12 +330,10 @@ class Game {
 
   private showLevelComplete() {
     if (this.dave.reachedEndMap) {
-      console.log("Dave dada map bata katnu bhooo");
       this.currentLevel++;
       if (this.currentLevel < this.levels.length) {
         this.loadlevel();
       } else {
-        console.log("All levels completed");
         this.dave.velX = 0;
         this.isLevelComplete = true;
       }

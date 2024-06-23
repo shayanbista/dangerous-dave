@@ -1,6 +1,6 @@
 import { GameEntity } from "./GameEntity";
 import { Tile } from "./tiles/tile";
-import { TILE_SIZE, canvasHeight, canvasWidth, harmingTiles } from "./constant";
+import { TILE_SIZE, canvasHeight, canvasWidth, harmingTiles, edibleTiles, solidTiles } from "./constant";
 import { SolidTile } from "./tiles/SolidTile";
 import { EdibleTile } from "./tiles/edibleTIle";
 import { HarmingTile } from "./tiles/harmingTiles";
@@ -21,8 +21,6 @@ interface Rect {
 interface CharacterProps {
   posX: number;
   posY: number;
-  solidTiles?: SolidTile[];
-  edibleTiles?: EdibleTile[];
 }
 
 export class Character extends GameEntity {
@@ -59,15 +57,12 @@ export class Character extends GameEntity {
   readonly horizontalHitBoxOffset = 5;
   readonly verticalHitBoxOffset = 5;
 
-  constructor({ posX, posY, solidTiles = [], edibleTiles = [] }: CharacterProps) {
+  constructor({ posX, posY}: CharacterProps) {
     super({
       posX,
       posY,
       width: Tile.size - 4,
       height: Tile.size,
-      solidTiles,
-      edibleTiles,
-      harmingTiles,
     });
 
     this.velX = 0;
@@ -95,9 +90,7 @@ export class Character extends GameEntity {
     this.explosionFrame = 0;
     this.isDead = false;
     this.gameOver = false;
-    this.posX = 150;
-    this.posY = 100;
-    this.collectedItem = { key: false };
+    this.collectedItem = { key: false, door: false, gun: false, jetpack: false };
 
     this.spriteImage = new Image();
     this.spriteImage.src = "assets/sprites/tileset.png";
@@ -134,7 +127,7 @@ export class Character extends GameEntity {
 
   draw(ctx: CanvasRenderingContext2D, viewX: number, viewY: number) {
     const spriteX = this.getSpriteX();
-    console.log("spritex", spriteX);
+
     const scale = 1;
     const spriteY = this.explosionComplete ? 2 * Tile.size : 10 * Tile.size;
 
@@ -153,11 +146,6 @@ export class Character extends GameEntity {
 
   private updateAnimationFrame() {
     if (this.keys.right.hold || this.keys.left.hold || this.moveAutomatically) {
-      if (this.moveAutomatically) {
-        console.log("move automatically is working");
-        console.log("animation frame", this.animationFrame);
-        console.log("framecounter", this.frameCounter);
-      }
       this.frameCounter++;
       if (this.frameCounter >= this.framedelay) {
         this.animationFrame = (this.animationFrame + 1) % 3;
@@ -183,7 +171,6 @@ export class Character extends GameEntity {
   moveCharacterAutomatically() {
     this.moveAutomatically = true;
     this.velX = 3;
-    console.log("i am running");
 
     this.direction = 1;
     this.controlsEnabled = false;
@@ -222,7 +209,6 @@ export class Character extends GameEntity {
     if (this.posX > 880) {
       this.animationFrame++;
       this.reachedEndMap = true;
-      console.log("Character.ts: reachedEndMap =", this.reachedEndMap);
       this.posX = 0;
     }
   }
@@ -249,17 +235,17 @@ export class Character extends GameEntity {
   }
 
   handleCollision() {
-    const keyExists = this.edibleTiles.some((tile) => tile.type === "Y");
+    const keyExists = edibleTiles.some((tile) => tile.type === "Y");
 
     this.grounded = false;
     this.colliding = false;
 
-    for (let tile of this.solidTiles) {
+    for (let tile of solidTiles) {
       this.handleSolidTileCollision(tile);
     }
 
-    for (let i = 0; i < this.edibleTiles.length; i++) {
-      const tile = this.edibleTiles[i];
+    for (let i = 0; i < edibleTiles.length; i++) {
+      const tile = edibleTiles[i];
       if (tile.consumed) continue;
 
       const tileRect = this.getTileRect(tile);
@@ -269,7 +255,7 @@ export class Character extends GameEntity {
         this.handleEdibleTileCollision(tile, keyExists, i);
       }
     }
-    for (let tile of this.harmingTiles) {
+    for (let tile of harmingTiles) {
       this.handleHarmingTileCollision(tile);
     }
   }
@@ -337,19 +323,21 @@ export class Character extends GameEntity {
       tile.consumed = true;
     }
 
-    console.log("collectedItem", this.collectedItem);
-
     if (tile.type === "door") {
       if (this.collectedItem.key === true) {
         tile.consumed = false;
         this.isDoor = true;
-        console.log("dave reached here");
-        // this.collectedItem.key = false;
+        this.collectedItem.door = true;
       } else {
         this.utilityMessage = "Take the key to go through the door";
       }
     } else {
-      this.edibleTiles.splice(index, 1);
+      edibleTiles.splice(index, 1);
+    }
+
+    if (tile.type === "Gun") {
+      console.log("gun picked");
+      this.utilityMessage = "gun picked (l)";
     }
   }
 
@@ -357,12 +345,11 @@ export class Character extends GameEntity {
     const tileRect = this.getTileRect(tile);
     if (isColliding(this.playerRect, tileRect)) {
       if (this.lives > 0 && !this.isDead) {
-        this.controlsEnabled = false;
-        console.log("lives", this.lives);
+        // this.controlsEnabled = false;
         this.isDead = true;
         this.lives -= 1;
 
-        this.handleExplosion();
+        // this.handleExplosion();
       } else {
         console.log("Gameover");
       }
@@ -390,9 +377,9 @@ export class Character extends GameEntity {
   private respawn() {
     this.isDead = false;
     this.controlsEnabled = true;
-    this.explosionComplete = true;
-    this.posX = 100;
-    this.posY = 100;
+    // this.explosionComplete = true;
+    // this.posX = 100;
+    // this.posY = 160;
 
     this.jumping = false;
     this.grounded = false;
