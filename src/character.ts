@@ -1,4 +1,4 @@
-import { GameEntity } from "./gameEntity";
+import { GameEntity } from "./GameEntity";
 import { Tile } from "./tiles/tile";
 import { TILE_SIZE, canvasHeight, canvasWidth, harmingTiles } from "./constant";
 import { SolidTile } from "./tiles/SolidTile";
@@ -55,12 +55,7 @@ export class Character extends GameEntity {
   isDead: boolean;
   gameOver: boolean;
 
-  constructor({
-    posX,
-    posY,
-    solidTiles = [],
-    edibleTiles = [],
-  }: CharacterProps) {
+  constructor({ posX, posY, solidTiles = [], edibleTiles = [] }: CharacterProps) {
     super({
       posX,
       posY,
@@ -130,12 +125,7 @@ export class Character extends GameEntity {
     }
   }
 
-  draw(
-    ctx: CanvasRenderingContext2D,
-    dw: number = Tile.size,
-    dh: number = Tile.size,
-    scale: number = 1
-  ) {
+  draw(ctx: CanvasRenderingContext2D, dw: number = Tile.size, dh: number = Tile.size, scale: number = 1) {
     const spriteX = this.getSpriteX();
     console.log("spritex", spriteX);
     const spriteY = this.explosionComplete ? 2 * Tile.size : 10 * Tile.size;
@@ -174,17 +164,11 @@ export class Character extends GameEntity {
     if (!this.explosionComplete) {
       const explosionFrameCount = 2;
       const explosionFrameOffset = 0;
-      return (
-        ((this.explosionFrame % explosionFrameCount) + explosionFrameOffset) *
-        Tile.size
-      );
+      return ((this.explosionFrame % explosionFrameCount) + explosionFrameOffset) * Tile.size;
     } else {
       const defaultFrameCount = 3;
       const defaultFrameOffset = this.direction === 1 ? 1 : 5;
-      return (
-        ((this.animationFrame % defaultFrameCount) + defaultFrameOffset) *
-        Tile.size
-      );
+      return ((this.animationFrame % defaultFrameCount) + defaultFrameOffset) * Tile.size;
     }
   }
 
@@ -296,9 +280,7 @@ export class Character extends GameEntity {
       bottom: this.posY + TILE_SIZE + 10,
     };
 
-    this.grounded = isColliding(groundCheckRect, tileRect)
-      ? true
-      : this.grounded;
+    this.grounded = isColliding(groundCheckRect, tileRect) ? true : this.grounded;
 
     if (isColliding(this.playerRect, tileRect)) {
       this.resolveTileCollision(tileRect);
@@ -306,39 +288,23 @@ export class Character extends GameEntity {
   }
 
   private resolveTileCollision(tileRect: Rect) {
-    if (
-      this.playerRect.bottom >= tileRect.top &&
-      this.playerRect.top <= tileRect.top
-    ) {
+    if (this.playerRect.bottom >= tileRect.top && this.playerRect.top <= tileRect.top) {
       this.posY = tileRect.top - TILE_SIZE;
       this.velY = 0;
       this.jumping = false;
       this.grounded = true;
-    } else if (
-      this.playerRect.top <= tileRect.bottom &&
-      this.playerRect.bottom >= tileRect.bottom
-    ) {
+    } else if (this.playerRect.top <= tileRect.bottom && this.playerRect.bottom >= tileRect.bottom) {
       this.posY = tileRect.bottom;
       this.velY = 0;
-    } else if (
-      this.playerRect.right >= tileRect.left &&
-      this.playerRect.left <= tileRect.left
-    ) {
+    } else if (this.playerRect.right >= tileRect.left && this.playerRect.left <= tileRect.left) {
       this.posX -= 5;
       this.animationFrame = 0;
-    } else if (
-      this.playerRect.left <= tileRect.right &&
-      this.playerRect.right >= tileRect.right
-    ) {
+    } else if (this.playerRect.left <= tileRect.right && this.playerRect.right >= tileRect.right) {
       this.posX = tileRect.right - 0.01;
     }
   }
 
-  private handleEdibleTileCollision(
-    tile: EdibleTile,
-    crownExists: boolean,
-    index: number
-  ) {
+  private handleEdibleTileCollision(tile: EdibleTile, crownExists: boolean, index: number) {
     this.score += tile.value;
     if (tile.type === "Y") {
       this.utilityMessage = "Go through the door";
@@ -426,10 +392,5 @@ export class Character extends GameEntity {
 
 //  check collision
 function isColliding(rect1: Rect, rect2: Rect): boolean {
-  return (
-    rect1.left < rect2.right &&
-    rect1.right > rect2.left &&
-    rect1.top < rect2.bottom &&
-    rect1.bottom > rect2.top
-  );
+  return rect1.left < rect2.right && rect1.right > rect2.left && rect1.top < rect2.bottom && rect1.bottom > rect2.top;
 }

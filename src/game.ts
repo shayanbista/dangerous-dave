@@ -1,20 +1,13 @@
-import { Character } from "./character";
-import {
-  TILE_SIZE,
-  canvasHeight,
-  canvasWidth,
-  edibleTiles,
-  harmingTiles,
-  solidTiles,
-} from "./constant";
+import { Character } from "./Character";
+import { TILE_SIZE, canvasHeight, canvasWidth, edibleTiles, harmingTiles, solidTiles } from "./constant";
 import { Level_complete } from "./levels";
-import { Score } from "./score";
+import { Score } from "./Score";
 import { SolidTile } from "./tiles/SolidTile";
 import { EdibleTile } from "./tiles/edibleTIle";
 import { HarmingTile } from "./tiles/harmingTiles";
 
 class Game {
-  private levels: any;
+  // private levels: any;
   private gameCanvas: HTMLCanvasElement;
   private gameCtx: CanvasRenderingContext2D;
   private dave: Character;
@@ -26,11 +19,10 @@ class Game {
   isLevelComplete: boolean;
   private totalScore: number;
   private frameCount: number = 0;
+  private levels: string[][][];
 
-  constructor(levels: any) {
-    this.gameCanvas = document.getElementById(
-      "gameCanvas"
-    ) as HTMLCanvasElement;
+  constructor(levels: string[][][]) {
+    this.gameCanvas = document.getElementById("gameCanvas") as HTMLCanvasElement;
     this.gameCtx = this.gameCanvas.getContext("2d")!;
     this.gameCanvas.style.background = "black";
     this.gameCanvas.style.display = "block";
@@ -43,6 +35,7 @@ class Game {
     this.isLevelComplete = false;
     this.map = this.levels[this.currentLevel];
     this.paused = false;
+    console.log("thismap", this.map);
     this.dave = new Character({ posX: 0, posY: 0, solidTiles, edibleTiles });
     this.totalScore = 0;
     window.addEventListener("keydown", (event) => {
@@ -69,17 +62,9 @@ class Game {
     this.gameCtx.font = "24px 'Press Start 2P'";
     this.gameCtx.fillStyle = "white";
     this.gameCtx.textAlign = "center";
-    this.gameCtx.fillText(
-      "Paused",
-      this.gameCanvas.width / 2,
-      this.gameCanvas.height / 2
-    );
+    this.gameCtx.fillText("Paused", this.gameCanvas.width / 2, this.gameCanvas.height / 2);
 
-    this.gameCtx.fillText(
-      "Press P to resume again",
-      this.gameCanvas.width / 1.8,
-      this.gameCanvas.height / 1.5
-    );
+    this.gameCtx.fillText("Press P to resume again", this.gameCanvas.width / 1.8, this.gameCanvas.height / 1.5);
   }
 
   private initializeGame() {
@@ -92,12 +77,7 @@ class Game {
   private scoreSection() {
     this.gameCtx.fillStyle = "#000000 ";
     this.gameCtx.fillRect(30, 0, this.gameCanvas.width, this.scoreboardHeight);
-    this.score?.updateDisplay(
-      this.dave.score,
-      this.currentLevel,
-      this.dave.lives,
-      this.dave.levelUpMessage
-    );
+    this.score?.updateDisplay(this.dave.score, this.currentLevel, this.dave.lives, this.dave.levelUpMessage);
   }
 
   private footerSection() {
@@ -111,11 +91,7 @@ class Game {
 
     this.gameCtx.fillStyle = "white";
     this.gameCtx.font = "bold 24px Arial";
-    this.gameCtx.fillText(
-      this.dave.utilityMessage,
-      400,
-      this.gameCanvas.height - 20
-    );
+    this.gameCtx.fillText(this.dave.utilityMessage, 400, this.gameCanvas.height - 20);
   }
 
   private setCharacterPosition() {
@@ -170,6 +146,10 @@ class Game {
               break;
             case "T":
               [spriteX, spriteY] = [5, 0];
+              type = "solid";
+              break;
+            case "S":
+              [spriteX, spriteY] = [4, 8];
               type = "solid";
               break;
             case "D":
@@ -227,20 +207,10 @@ class Game {
           }
 
           if (type === "solid") {
-            let tile1 = new SolidTile(
-              spriteX,
-              spriteY,
-              x * TILE_SIZE,
-              y * TILE_SIZE + this.scoreboardHeight,
-              64,
-              64
-            );
+            let tile1 = new SolidTile(spriteX, spriteY, x * TILE_SIZE, y * TILE_SIZE + this.scoreboardHeight, 64, 64);
             solidTiles.push(tile1);
-          } else if (
-            type === "Fire" ||
-            type === "Tentacles" ||
-            type === "Water"
-          ) {
+            console.log(`Added solid tile: ${tile} at (${x}, ${y})`); // Log solid tile
+          } else if (type === "Fire" || type === "Tentacles" || type === "Water") {
             let tile3 = new HarmingTile(
               spriteX,
               spriteY,
@@ -253,7 +223,6 @@ class Game {
               10
             );
             console.log("Created harming tile:", tile3);
-            console.log("pushed successfully");
             harmingTiles.push(tile3);
           } else {
             let tile2 = new EdibleTile(
@@ -272,7 +241,7 @@ class Game {
       }
     }
 
-    console.log("Final harming tiles array:", harmingTiles);
+    console.log("Final solid tiles array:", solidTiles);
   }
 
   private isInDoor() {
@@ -336,11 +305,7 @@ class Game {
       this.gameCtx.textAlign = "center";
       this.gameCtx.fillText("Game Over", canvasWidth / 2, canvasHeight / 2);
 
-      this.gameCtx.fillText(
-        `Your total score is ${this.dave.score}`,
-        canvasWidth / 1.9,
-        canvasHeight / 1.5
-      );
+      this.gameCtx.fillText(`Your total score is ${this.dave.score}`, canvasWidth / 1.9, canvasHeight / 1.5);
 
       return;
     }
@@ -376,12 +341,7 @@ class Game {
       this.setCharacterPosition();
       this.dave.isDoor = false;
 
-      this.gameCtx.clearRect(
-        0,
-        0,
-        this.gameCanvas.width,
-        this.gameCanvas.height
-      );
+      this.gameCtx.clearRect(0, 0, this.gameCanvas.width, this.gameCanvas.height);
       this.renderGame();
       this.dave.moveCharacterAutomatically();
     }

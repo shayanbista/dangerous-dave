@@ -1,6 +1,6 @@
-// import { initializeMapEditor } from "./customEditorLevel";
 import { SolidTile } from "./tiles/SolidTile";
-import { startEditor } from "./customEditorLevel";
+import { startEditor } from "./CustomEditorLevel";
+import { MainGame } from "./MainGame";
 
 class SplashScreen {
   private ctx: CanvasRenderingContext2D;
@@ -78,8 +78,7 @@ class SplashScreen {
   }
 
   drawMap() {
-    const offsetX =
-      (this.ctx.canvas.width - this.mapStructure[0].length * 50) / 2;
+    const offsetX = (this.ctx.canvas.width - this.mapStructure[0].length * 50) / 2;
     const offsetY = 150;
 
     for (let y = 0; y < this.mapStructure.length; y++) {
@@ -119,23 +118,13 @@ class SplashScreen {
     this.ctx.fillStyle = "white";
     this.ctx.textBaseline = "middle";
     this.ctx.textAlign = "center";
-    this.ctx.fillText(
-      "PRESS S TO START GAME",
-      this.ctx.canvas.width / 2,
-      this.ctx.canvas.height - 70
-    );
-    this.ctx.fillText(
-      "PRESS SPACEBAR TO BUILD CUSTOM MAP",
-      this.ctx.canvas.width / 2,
-      this.ctx.canvas.height - 30
-    );
+    this.ctx.fillText("PRESS S TO START GAME", this.ctx.canvas.width / 2, this.ctx.canvas.height - 70);
+    this.ctx.fillText("PRESS SPACEBAR TO BUILD CUSTOM MAP", this.ctx.canvas.width / 2, this.ctx.canvas.height - 30);
   }
 }
 
 export function initializeSplashScreen() {
-  const splashCanvas = document.getElementById(
-    "splashCanvas"
-  ) as HTMLCanvasElement;
+  const splashCanvas = document.getElementById("splashCanvas") as HTMLCanvasElement;
   const splashCtx = splashCanvas.getContext("2d")!;
   const splashScreen = new SplashScreen(splashCtx);
   function animate() {
@@ -146,6 +135,8 @@ export function initializeSplashScreen() {
 
   window.addEventListener("keydown", (e) => {
     if (e.key === "s" || e.key === "S") {
+      new MainGame();
+
       document.getElementById("splashScreen")!.style.display = "none";
     } else if (e.code === "Space") {
       document.getElementById("splashScreen")!.style.display = "none";

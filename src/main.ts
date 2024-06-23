@@ -1,8 +1,7 @@
-import { initializeSplashScreen } from './splashScreen';
-
+import { initializeSplashScreen } from "./SplashScreen";
 
 window.onload = () => {
-  document.getElementById('editor')!.style.display = 'none';
-  document.getElementById('splashScreen')!.style.display = 'block';
+  document.getElementById("editor")!.style.display = "none";
+  document.getElementById("splashScreen")!.style.display = "block";
   initializeSplashScreen();
 };

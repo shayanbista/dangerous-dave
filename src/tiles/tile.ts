@@ -60,5 +60,6 @@ export const TILES = {
   Crown: "C", // 6,1
   Trophy: "Y", // 7,1
   Jetpack: "J", // 8,1
+  Steel:"S",
   ExitDoor: "E", // 1,8
 };

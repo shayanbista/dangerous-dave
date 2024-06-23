@@ -1,30 +1,12 @@
 import { SolidTile } from "./tiles/SolidTile";
-import {
-  CustomMap,
-  CustomMap1,
-  LEVEL1_MAP,
-  LEVEL2_MAP,
-  Level_3Map,
-  Level_complete,
-} from "./levels";
-import { Game } from "./game";
-import { Score } from "./score";
+import { CustomMap, CustomMap1, LEVEL1_MAP, LEVEL_2_MAP, Level_3Map, Level_complete } from "./levels";
+import { Game } from "./Game";
+import { Score } from "./Score";
 
 const TILE_SIZE = 64;
 const DRAW_SIZE = 50;
 
-export function isLevelCompleteMap(level: (string | null)[][]): boolean {
-  return (
-    level[4] &&
-    level[4].every((tile) => tile === "P") &&
-    level[5] &&
-    level[5][0] === "E" &&
-    level[5][1] === "DA"
-  );
-}
-
 export class CustomEditorLevel {
-  private levelNames: string[];
   private mapCanvas: HTMLCanvasElement;
   private mapCtx: CanvasRenderingContext2D;
   private tileSelector: HTMLElement;
@@ -35,10 +17,10 @@ export class CustomEditorLevel {
   private errorDisplay: HTMLElement;
   private successDisplay: HTMLElement;
   private currentTile: string;
-  private map: (string | null)[][];
+  private map: string[][];
   private tilesetImage: HTMLImageElement;
   // TODO conver this levels any to type
-  private levels: any;
+  private levels: string[][][];
   private currentLevelIndex: number;
 
   constructor() {
@@ -47,25 +29,20 @@ export class CustomEditorLevel {
     this.tileSelector = document.getElementById("tileSelector") as HTMLElement;
     this.mapCanvas.style.background = "red";
     this.saveButton = document.getElementById("save") as HTMLButtonElement;
-    this.prevLevelButton = document.getElementById(
-      "previous-level"
-    ) as HTMLButtonElement;
-    this.nextLevelButton = document.getElementById(
-      "next-level"
-    ) as HTMLButtonElement;
-    this.levelNames = this.levels;
-    console.log;
+    this.prevLevelButton = document.getElementById("previous-level") as HTMLButtonElement;
+    this.nextLevelButton = document.getElementById("next-level") as HTMLButtonElement;
 
     this.output = document.createElement("textarea");
     this.errorDisplay = document.getElementById("errorDisplay")!;
     this.successDisplay = document.getElementById("successDisplay")!;
     this.currentTile = "B";
-    this.levels = [
-      LEVEL1_MAP.map((row) => row.map((tile) => (tile === " " ? null : tile))),
-      CustomMap.map((row) => row.map((tile) => (tile === " " ? null : tile))),
-      CustomMap1.map((row) => row.map((tile) => (tile === " " ? null : tile))),
-      Level_3Map.map((row) => row.map((tile) => (tile === " " ? null : tile))),
-    ];
+    // this.levels = [
+    //   LEVEL1_MAP.map((row) => row.map((tile) => (tile === " " ? '' : tile))),
+    //   CustomMap.map((row) => row.map((tile) => (tile === " " ? '' : tile))),
+    //   CustomMap1.map((row) => row.map((tile) => (tile === " " ? '' : tile))),
+    //   Level_3Map.map((row) => row.map((tile) => (tile === " " ? '' : tile))),
+    // ];
+    this.levels = [LEVEL1_MAP];
     this.currentLevelIndex = 0;
     this.map = this.levels[this.currentLevelIndex];
 
@@ -89,10 +66,7 @@ export class CustomEditorLevel {
     };
 
     this.mapCanvas.addEventListener("click", this.handleCanvasClick.bind(this));
-    this.mapCanvas.addEventListener(
-      "contextmenu",
-      this.handleCanvasRightClick.bind(this)
-    );
+    this.mapCanvas.addEventListener("contextmenu", this.handleCanvasRightClick.bind(this));
 
     this.prevLevelButton.addEventListener("click", this.prevLevel.bind(this));
     this.nextLevelButton.addEventListener("click", this.nextLevel.bind(this));
@@ -107,7 +81,7 @@ export class CustomEditorLevel {
       PurpleTile: "P",
       RockTile: "K",
       LavaTile: "L",
-      BlueBlock: "T",
+      Steel: "S",
       Diamond: "D",
       RedDiamond: "RD",
       Dave: "DA",
@@ -145,8 +119,8 @@ export class CustomEditorLevel {
         case "LavaTile":
           [spriteX, spriteY] = [4, 0];
           break;
-        case "BlueBlock":
-          [spriteX, spriteY] = [5, 0];
+        case "Steel":
+          [spriteX, spriteY] = [4, 8];
           break;
         case "Diamond":
           [spriteX, spriteY] = [0, 1];
@@ -183,14 +157,7 @@ export class CustomEditorLevel {
           break;
       }
 
-      const sprite = new SolidTile(
-        spriteX,
-        spriteY,
-        index,
-        0,
-        TILE_SIZE,
-        TILE_SIZE
-      );
+      const sprite = new SolidTile(spriteX, spriteY, index, 0, TILE_SIZE, TILE_SIZE);
 
       const tileCanvas = document.createElement("canvas");
       tileCanvas.width = TILE_SIZE;
@@ -203,9 +170,7 @@ export class CustomEditorLevel {
 
       tileBox.addEventListener("click", () => {
         this.currentTile = tileBox.dataset.tile!;
-        document
-          .querySelectorAll(".tile-box")
-          .forEach((box) => box.classList.remove("selected"));
+        document.querySelectorAll(".tile-box").forEach((box) => box.classList.remove("selected"));
         tileBox.classList.add("selected");
       });
     });
@@ -256,6 +221,9 @@ export class CustomEditorLevel {
       case "Y": // Trophy
         coordinates = [7, 1];
         break;
+      case "S": // steel
+        coordinates = [4, 8];
+        break;
       case "J": // Jetpack
         coordinates = [8, 1];
         break;
@@ -289,28 +257,15 @@ export class CustomEditorLevel {
     this.mapCtx.fillRect(0, 0, this.mapCanvas.width, DRAW_SIZE);
     this.mapCtx.fillStyle = "white";
     this.mapCtx.font = "bold 16px Arial";
-    this.mapCtx.fillText(
-      "SCORE AREA",
-      this.mapCanvas.width / 2 - 60,
-      DRAW_SIZE / 1.5
-    );
+    this.mapCtx.fillText("SCORE AREA", this.mapCanvas.width / 2 - 60, DRAW_SIZE / 1.5);
   }
 
   drawFooterArea() {
     this.mapCtx.fillStyle = "gray";
-    this.mapCtx.fillRect(
-      0,
-      this.mapCanvas.height - DRAW_SIZE,
-      this.mapCanvas.width,
-      DRAW_SIZE
-    );
+    this.mapCtx.fillRect(0, this.mapCanvas.height - DRAW_SIZE, this.mapCanvas.width, DRAW_SIZE);
     this.mapCtx.fillStyle = "white";
     this.mapCtx.font = "bold 16px Arial";
-    this.mapCtx.fillText(
-      "GAME FOOTER AREA",
-      this.mapCanvas.width / 2 - 80,
-      this.mapCanvas.height - DRAW_SIZE / 1.5
-    );
+    this.mapCtx.fillText("GAME FOOTER AREA", this.mapCanvas.width / 2 - 80, this.mapCanvas.height - DRAW_SIZE / 1.5);
   }
 
   drawTile(tile: string, x: number, y: number) {
@@ -329,6 +284,7 @@ export class CustomEditorLevel {
     const y = Math.floor((e.clientY - rect.top) / DRAW_SIZE) - 1;
 
     if (y >= 0 && y < this.map.length) {
+      console.log("currenttile", this.currentTile);
       this.map[y][x] = this.currentTile;
       this.drawMap();
     }
@@ -341,7 +297,7 @@ export class CustomEditorLevel {
     const y = Math.floor((e.clientY - rect.top) / DRAW_SIZE) - 1;
 
     if (y >= 0 && y < this.map.length) {
-      this.map[y][x] = null;
+      this.map[y][x] = " ";
       this.drawMap();
     }
   }
@@ -367,9 +323,7 @@ export class CustomEditorLevel {
     }
 
     if (errorMessages.length === 0) {
-      this.output.value = JSON.stringify(
-        this.map.map((row) => row.map((tile) => (tile ? tile : null)))
-      );
+      this.output.value = JSON.stringify(this.map.map((row) => row.map((tile) => (tile ? tile : null))));
       this.successDisplay.innerText = "Map saved successfully.";
       this.levels[this.currentLevelIndex] = this.map;
       console.log("levels", this.levels);
@@ -415,19 +369,9 @@ export class CustomEditorLevel {
   }
 }
 
-let editorInstance: CustomEditorLevel | null = null;
-
-document.addEventListener("DOMContentLoaded", () => {
-  editorInstance = new CustomEditorLevel();
-});
-
-export const editor = editorInstance;
-
-// this function is called from the splash screen section
 export function startEditor() {
   document.getElementById("splashScreen")!.style.display = "none";
   document.getElementById("editor")!.style.display = "flex";
-  if (editorInstance) {
-    editorInstance.drawMap();
-  }
+  const editorInstance = new CustomEditorLevel();
+  editorInstance.drawMap();
 }
