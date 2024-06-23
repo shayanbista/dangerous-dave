@@ -7,6 +7,7 @@ import { EdibleTile } from "./tiles/edibleTIle";
 import { HarmingTile } from "./tiles/harmingTiles";
 
 class Game {
+  // private levels: any;
   private gameCanvas: HTMLCanvasElement;
   private gameCtx: CanvasRenderingContext2D;
   private dave: Character;
