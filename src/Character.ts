@@ -56,6 +56,9 @@ export class Character extends GameEntity {
   gameOver: boolean;
   collectedItem: { [key: string]: boolean };
 
+  readonly horizontalHitBoxOffset = 5;
+  readonly verticalHitBoxOffset = 5;
+
   constructor({ posX, posY, solidTiles = [], edibleTiles = [] }: CharacterProps) {
     super({
       posX,
@@ -67,8 +70,8 @@ export class Character extends GameEntity {
       harmingTiles,
     });
 
-    this.velX = 4;
-    this.velY = 2;
+    this.velX = 0;
+    this.velY = 0;
     this.direction = 1;
     this.jumping = false;
     this.canJump = true;
@@ -249,6 +252,7 @@ export class Character extends GameEntity {
     const keyExists = this.edibleTiles.some((tile) => tile.type === "Y");
 
     this.grounded = false;
+    this.colliding = false;
 
     for (let tile of this.solidTiles) {
       this.handleSolidTileCollision(tile);
@@ -282,25 +286,46 @@ export class Character extends GameEntity {
 
     this.grounded = isColliding(groundCheckRect, tileRect) ? true : this.grounded;
 
-    if (isColliding(this.playerRect, tileRect)) {
+    const newPlayerRect = {
+      ...this.playerRect,
+      left: this.playerRect.left + this.velX,
+      right: this.playerRect.right + this.velX,
+    };
+
+    if (isColliding(newPlayerRect, tileRect)) {
       this.resolveTileCollision(tileRect);
     }
   }
 
   private resolveTileCollision(tileRect: Rect) {
-    if (this.playerRect.bottom >= tileRect.top && this.playerRect.top <= tileRect.top) {
-      this.posY = tileRect.top - TILE_SIZE;
-      this.velY = 0;
-      this.jumping = false;
-      this.grounded = true;
-    } else if (this.playerRect.top <= tileRect.bottom && this.playerRect.bottom >= tileRect.bottom) {
-      this.posY = tileRect.bottom;
-      this.velY = 0;
-    } else if (this.playerRect.right >= tileRect.left && this.playerRect.left <= tileRect.left) {
-      this.posX -= 5;
-      this.animationFrame = 0;
-    } else if (this.playerRect.left <= tileRect.right && this.playerRect.right >= tileRect.right) {
-      this.posX = tileRect.right - 0.01;
+    if (this.velX < 0) {
+      if (this.playerRect.left + this.velX < tileRect.right && this.playerRect.right > tileRect.right) {
+        this.posX = tileRect.right - this.horizontalHitBoxOffset;
+        this.velX = 0;
+      }
+    }
+
+    if (this.velX > 0) {
+      if (this.playerRect.right + this.velX > tileRect.left && this.playerRect.left < tileRect.left) {
+        this.posX = tileRect.left + this.horizontalHitBoxOffset - TILE_SIZE;
+        this.velX = 0;
+      }
+    }
+
+    if (this.velY < 0) {
+      if (this.playerRect.top < tileRect.bottom && this.playerRect.bottom > tileRect.bottom) {
+        this.posY = tileRect.bottom;
+        this.velY = 0;
+      }
+    }
+
+    if (this.velY > 0) {
+      if (this.playerRect.bottom > tileRect.top && this.playerRect.top < tileRect.top) {
+        this.posY = tileRect.top - TILE_SIZE;
+        this.velY = 0;
+        this.jumping = false;
+        this.grounded = true;
+      }
     }
   }
 
@@ -346,10 +371,10 @@ export class Character extends GameEntity {
 
   private get playerRect() {
     return {
-      left: this.posX + 10,
-      right: this.posX + TILE_SIZE - 10,
-      top: this.posY + 5,
-      bottom: this.posY + TILE_SIZE - 5,
+      left: this.posX + this.horizontalHitBoxOffset,
+      right: this.posX + TILE_SIZE - this.horizontalHitBoxOffset,
+      top: this.posY + this.verticalHitBoxOffset,
+      bottom: this.posY + TILE_SIZE - this.verticalHitBoxOffset,
     };
   }
 
