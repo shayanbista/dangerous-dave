@@ -1,6 +1,6 @@
 import { GameEntity } from "./gameEntity";
 import { Tile } from "./tiles/tile";
-import { TILE_SIZE, harmingTiles } from "./constant";
+import { TILE_SIZE, canvasHeight, canvasWidth, harmingTiles } from "./constant";
 import { SolidTile } from "./tiles/SolidTile";
 import { EdibleTile } from "./tiles/edibleTIle";
 import { HarmingTile } from "./tiles/harmingTiles";
@@ -53,6 +53,7 @@ export class Character extends GameEntity {
   explosionComplete: boolean;
   explosionFrame: number;
   isDead: boolean;
+  gameOver: boolean;
 
   constructor({
     posX,
@@ -69,8 +70,6 @@ export class Character extends GameEntity {
       edibleTiles,
       harmingTiles,
     });
-
-    console.log("harmingTIles", harmingTiles);
 
     this.velX = 4;
     this.velY = 2;
@@ -92,10 +91,11 @@ export class Character extends GameEntity {
     this.scoreMessage = "";
     this.levelUpMessage = null;
     this.frameCounter = 0;
-    this.framedelay = 18;
+    this.framedelay = 7;
     this.explosionComplete = true;
     this.explosionFrame = 0;
     this.isDead = false;
+    this.gameOver = false;
 
     this.spriteImage = new Image();
     this.spriteImage.src = "assets/sprites/tileset.png";
@@ -200,8 +200,6 @@ export class Character extends GameEntity {
 
   hasReachedEnd() {
     this.reachedEndMap = true;
-    console.log("Reached end of map:", this.reachedEndMap);
-    this.posX = 0;
   }
 
   update() {
@@ -210,6 +208,19 @@ export class Character extends GameEntity {
     if (this.moveAutomatically) this.handleAutomaticMovement();
     this.handleInputMovement();
     this.handleCollision();
+
+    if (this.lives <= 0) {
+      this.gameOver = true;
+      setInterval(() => {
+        document.getElementById("gameCanvas")!.style.display = "none";
+        document.getElementById("splashScreen")!.style.display = "block";
+      }, 4000);
+    }
+
+    if (this.posX > canvasWidth || this.posY > canvasHeight) {
+      this.posX = 100;
+      this.posY = 100;
+    }
   }
 
   private applyGravity() {
@@ -233,16 +244,6 @@ export class Character extends GameEntity {
     this.posX += this.velX;
     this.posY += this.velY;
     this.velX = 0;
-
-    // if (this.velX > 0 || this.velX < 0) {
-    //   this.frameCounter++;
-    //   if (this.frameCounter >= this.framedelay) {
-    //     this.animationFrame = (this.animationFrame + 1) % 3;
-    //     this.frameCounter = 0;
-    //   }
-    // } else {
-    //   this.animationFrame = 0;
-    // }
 
     if (this.keys.left.hold) {
       this.velX = -4;
@@ -360,9 +361,11 @@ export class Character extends GameEntity {
     const tileRect = this.getTileRect(tile);
     if (isColliding(this.playerRect, tileRect)) {
       if (this.lives > 0 && !this.isDead) {
+        this.controlsEnabled = false;
         console.log("lives", this.lives);
         this.isDead = true;
         this.lives -= 1;
+
         this.handleExplosion();
       } else {
         console.log("Gameover");
@@ -392,8 +395,8 @@ export class Character extends GameEntity {
     this.isDead = false;
     this.controlsEnabled = true;
     this.explosionComplete = true;
-    this.posX = 300;
-    this.posY = 200;
+    this.posX = 100;
+    this.posY = 100;
 
     this.jumping = false;
     this.grounded = false;
@@ -403,7 +406,7 @@ export class Character extends GameEntity {
     this.explosionComplete = false;
     this.explosionFrame = 0;
     this.frameCounter = 0;
-    this.controlsEnabled = false;
+
     const totalDuration = 2000;
     const explosionFrameCount = 4;
     const intervalDuration = 150;
@@ -421,7 +424,7 @@ export class Character extends GameEntity {
   }
 }
 
-// Utility function to check collision
+//  check collision
 function isColliding(rect1: Rect, rect2: Rect): boolean {
   return (
     rect1.left < rect2.right &&

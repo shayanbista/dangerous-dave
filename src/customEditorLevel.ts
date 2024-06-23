@@ -62,9 +62,6 @@ export class CustomEditorLevel {
     this.currentTile = "B";
     this.levels = [
       LEVEL1_MAP.map((row) => row.map((tile) => (tile === " " ? null : tile))),
-      // Level_complete.map((row) =>
-      //   row.map((tile) => (tile === " " ? null : tile))
-      // ),
       CustomMap.map((row) => row.map((tile) => (tile === " " ? null : tile))),
       CustomMap1.map((row) => row.map((tile) => (tile === " " ? null : tile))),
       Level_3Map.map((row) => row.map((tile) => (tile === " " ? null : tile))),

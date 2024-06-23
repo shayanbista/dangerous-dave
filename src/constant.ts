@@ -4,6 +4,8 @@ import { HarmingTile } from "./tiles/harmingTiles";
 
 export const TILE_SIZE = 50;
 export const DRAW_SIZE = 50;
+export const canvasWidth = 1000;
+export const canvasHeight = 500;
 
 export const solidTiles: SolidTile[] = [];
 export const edibleTiles: EdibleTile[] = [];

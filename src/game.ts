@@ -1,10 +1,18 @@
 import { Character } from "./character";
-import { TILE_SIZE, edibleTiles, harmingTiles, solidTiles } from "./constant";
+import {
+  TILE_SIZE,
+  canvasHeight,
+  canvasWidth,
+  edibleTiles,
+  harmingTiles,
+  solidTiles,
+} from "./constant";
 import { Level_complete } from "./levels";
 import { Score } from "./score";
 import { SolidTile } from "./tiles/SolidTile";
 import { EdibleTile } from "./tiles/edibleTIle";
 import { HarmingTile } from "./tiles/harmingTiles";
+
 class Game {
   private levels: any;
   private gameCanvas: HTMLCanvasElement;
@@ -13,7 +21,7 @@ class Game {
   public score: Score | undefined;
   private currentLevel: number;
   private map: string[][];
-  isDoor: boolean;
+  paused: boolean;
   private scoreboardHeight: number = 50;
   isLevelComplete: boolean;
   private totalScore: number;
@@ -25,22 +33,53 @@ class Game {
     ) as HTMLCanvasElement;
     this.gameCtx = this.gameCanvas.getContext("2d")!;
     this.gameCanvas.style.background = "black";
+    this.gameCanvas.style.display = "block";
+    document.getElementById("editor")!.style.display = "none";
+    // TODO :increase the canvas height
     this.gameCanvas.height += this.scoreboardHeight;
     this.currentLevel = 0;
     this.levels = levels;
-
     this.score = new Score(this.gameCtx);
     this.isLevelComplete = false;
-
-    document.getElementById("editor")!.style.display = "none";
-    document.getElementById("gameCanvas")!.style.display = "block";
-
     this.map = this.levels[this.currentLevel];
-
-    this.isDoor = false;
+    this.paused = false;
     this.dave = new Character({ posX: 0, posY: 0, solidTiles, edibleTiles });
     this.totalScore = 0;
+    window.addEventListener("keydown", (event) => {
+      if (event.key === "p") {
+        this.togglePause();
+      }
+    });
+
     this.initializeGame();
+  }
+
+  private togglePause() {
+    this.paused = !this.paused;
+    if (!this.paused) {
+      this.gameLoop();
+    } else {
+      this.pauseScreen();
+    }
+  }
+
+  private pauseScreen() {
+    this.gameCtx.fillStyle = "rgba(0, 0, 0, 0.5)";
+    this.gameCtx.fillRect(0, 0, this.gameCanvas.width, this.gameCanvas.height);
+    this.gameCtx.font = "24px 'Press Start 2P'";
+    this.gameCtx.fillStyle = "white";
+    this.gameCtx.textAlign = "center";
+    this.gameCtx.fillText(
+      "Paused",
+      this.gameCanvas.width / 2,
+      this.gameCanvas.height / 2
+    );
+
+    this.gameCtx.fillText(
+      "Press P to resume again",
+      this.gameCanvas.width / 1.8,
+      this.gameCanvas.height / 1.5
+    );
   }
 
   private initializeGame() {
@@ -51,8 +90,8 @@ class Game {
   }
 
   private scoreSection() {
-    this.gameCtx.fillStyle = "black";
-    this.gameCtx.fillRect(0, 0, this.gameCanvas.width, this.scoreboardHeight);
+    this.gameCtx.fillStyle = "#000000 ";
+    this.gameCtx.fillRect(30, 0, this.gameCanvas.width, this.scoreboardHeight);
     this.score?.updateDisplay(
       this.dave.score,
       this.currentLevel,
@@ -283,28 +322,45 @@ class Game {
   }
 
   private gameLoop() {
+    if (this.paused) {
+      return;
+    }
+
     this.gameCtx.clearRect(0, 0, this.gameCanvas.width, this.gameCanvas.height);
 
-    this.isInDoor();
+    if (this.dave.gameOver) {
+      this.gameCtx.fillStyle = "black";
+      this.gameCtx.fillRect(canvasWidth / 2, canvasHeight / 2, 300, 300);
+      this.gameCtx.font = "48px Arial";
+      this.gameCtx.fillStyle = "white ";
+      this.gameCtx.textAlign = "center";
+      this.gameCtx.fillText("Game Over", canvasWidth / 2, canvasHeight / 2);
+
+      this.gameCtx.fillText(
+        `Your total score is ${this.dave.score}`,
+        canvasWidth / 1.9,
+        canvasHeight / 1.5
+      );
+
+      return;
+    }
     this.scoreSection();
     this.footerSection();
+    this.isInDoor();
     this.dave.update();
-
     this.renderGame();
 
     if (this.dave.reachedEndMap) {
       this.showLevelComplete();
     }
 
-    // Increment frame count for animation
     this.frameCount++;
-
     window.requestAnimationFrame(this.gameLoop.bind(this));
   }
 
   private showLevelComplete() {
     if (this.dave.reachedEndMap) {
-      console.log("Dave has reached the end of the map");
+      console.log("Dave dada map bata katnu bhooo");
       this.currentLevel++;
       if (this.currentLevel < this.levels.length) {
         this.loadlevel();
