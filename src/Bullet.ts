@@ -13,43 +13,57 @@ export class Bullet extends GameEntity {
     super({
       posX,
       posY,
-      width: 16,
-      height: 16,
+      width: TILE_SIZE,
+      height: TILE_SIZE,
     });
 
     this.vel = vel;
     this.user = user;
     this.direction = direction;
     this.bulletImage = new Image();
-    this.bulletImage.src = "./assets/sprites/banner.png";
+    this.bulletImage.src = "./assets/sprites/tileset.png";
     this.isActive = false;
   }
 
   update() {
     this.posX += this.direction * this.vel;
-    if (this.posX < 0 || this.posX > 800) this.isActive = false;
   }
 
-  draw(ctx: CanvasRenderingContext2D, viewX: number, viewY: number, spriteX: number) {
-    // let spriteY = 17 * TILE_SIZE;
-    let spriteY = 5 * TILE_SIZE;
+  draw(ctx: CanvasRenderingContext2D, viewX: number, viewY: number) {
     ctx.drawImage(
       this.bulletImage,
-      spriteX * TILE_SIZE,
-      spriteY,
+      0.8 * TILE_SIZE,
+      17.6 * TILE_SIZE,
       Tile.size,
       Tile.size,
       this.posX + 30 - viewX,
       this.posY - viewY,
-      this.width,
-      this.height
+      15,
+      15
     );
   }
 
+  checkCollision(entity: GameEntity): boolean {
+    const bulletLeft = this.posX;
+    const bulletRight = this.posX + this.width;
+    const bulletTop = this.posY;
+    const bulletBottom = this.posY + this.height;
+
+    const entityLeft = entity.posX;
+    const entityRight = entity.posX + entity.width;
+    const entityTop = entity.posY;
+    const entityBottom = entity.posY + entity.height;
+
+    return bulletLeft < entityRight && bulletRight > entityLeft && bulletTop < entityBottom && bulletBottom > entityTop;
+  }
+
   // shoot() {
-  //   if (this.direction == 1) {
-  //     this.bullet = new Bullet(this.posX, this.posY, this.user, this.vel, 1);
-  //     return this.bullet;
-  //   }
+  //   const currentTime = Date.now();
+  //   const bullet = new Bullet(this.posX, this.posY, this.user, 5, this.direction);
+  //   console.log("bullet", bullet);
+  //   bullet.isActive = true;
+  //   // this.bullets.push(bullet);
+  //   // this.lastShotTime = currentTime;
+  //   // this.isShooting = true;
   // }
 }

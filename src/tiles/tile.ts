@@ -59,7 +59,8 @@ export const TILES = {
   Key: "Key", // 5,1
   Crown: "C", // 6,1
   Trophy: "Y", // 7,1
-  Jetpack: "J", // 8,1
-  Steel:"S",
+  Jetpack: "J", // 1,8
+  Steel: "S",
+  Spider: "Sp", // 2,10
   ExitDoor: "E", // 1,8
 };

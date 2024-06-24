@@ -63,6 +63,12 @@ export class Character extends GameEntity {
   shootCooldown: number;
   bullets: Bullet[];
 
+  private jetpackActive: boolean;
+  private jetpackThrust: number;
+  private jetpackFuel: number;
+  private maxJetpackFuel: number;
+  // private jetpackImage: HTMLImageElement;
+
   constructor({ posX, posY }: CharacterProps) {
     super({
       posX,
@@ -99,6 +105,10 @@ export class Character extends GameEntity {
     this.collectedItem = { key: false, door: false, gun: false, jetpack: false };
     this.isShooting = true;
     this.canshoot = true;
+    this.jetpackActive = false;
+    this.jetpackThrust = 0.5;
+    this.jetpackFuel = 100;
+    this.maxJetpackFuel = 100;
 
     this.bullets = [];
     this.lastShotTime = 0;
@@ -138,39 +148,64 @@ export class Character extends GameEntity {
         console.log("key l is pressed");
         this.shoot();
         break;
+      case "x":
+        console.log("key X is pressed");
+        if (hold) this.activateJetpack();
+        else this.deactivateJetpack();
+        break;
     }
   }
 
   private shoot() {
-    const currentTime = Date.now();
-    if (currentTime - this.lastShotTime >= this.shootCooldown) {
-      const bullet = new Bullet(this.posX, this.posY, this, 5, this.direction);
-      console.log("bullet", bullet);
+    console.log("can fire", this.collectedItem.key);
+    if (this.collectedItem.gun === true) {
+      const currentTime = Date.now();
+      if (currentTime - this.lastShotTime >= this.shootCooldown) {
+        const bullet = new Bullet(this.posX, this.posY, this, 5, this.direction);
+        console.log("bullet", bullet);
 
-      bullet.isActive = true;
-      this.bullets.push(bullet);
-      this.lastShotTime = currentTime;
-      this.isShooting = true;
+        bullet.isActive = true;
+        this.bullets.push(bullet);
+        this.lastShotTime = currentTime;
+        this.isShooting = true;
+      }
+    } else {
+      this.utilityMessage = "no gun to fire bullet";
     }
   }
 
   draw(ctx: CanvasRenderingContext2D, viewX: number, viewY: number) {
-    const spriteX = this.getSpriteX();
+    if (this.jetpackActive) {
+      let spriteX = this.direction == 1 ? 6 : 5;
+      let spriteY = 4 * 64;
+      ctx.drawImage(
+        this.spriteImage,
+        spriteX * 64,
+        spriteY,
+        Tile.size,
+        Tile.size,
+        this.posX - viewX,
+        this.posY - viewY,
+        TILE_SIZE * 1,
+        TILE_SIZE * 1
+      );
+    } else {
+      const spriteX = this.getSpriteX();
+      const scale = 1;
+      const spriteY = this.explosionComplete ? 2 * Tile.size : 10 * Tile.size;
 
-    const scale = 1;
-    const spriteY = this.explosionComplete ? 2 * Tile.size : 10 * Tile.size;
-
-    ctx.drawImage(
-      this.spriteImage,
-      spriteX,
-      spriteY,
-      Tile.size,
-      Tile.size,
-      this.posX - viewX,
-      this.posY - viewY,
-      TILE_SIZE * scale,
-      TILE_SIZE * scale
-    );
+      ctx.drawImage(
+        this.spriteImage,
+        spriteX,
+        spriteY,
+        Tile.size,
+        Tile.size,
+        this.posX - viewX,
+        this.posY - viewY,
+        TILE_SIZE * scale,
+        TILE_SIZE * scale
+      );
+    }
   }
 
   private updateAnimationFrame() {
@@ -210,6 +245,17 @@ export class Character extends GameEntity {
     this.reachedEndMap = true;
   }
 
+  activateJetpack() {
+    if (this.collectedItem.jetpack && this.jetpackFuel > 0) {
+      this.jetpackActive = true;
+      console.log("remaining fuel", this.jetpackFuel);
+    }
+  }
+
+  deactivateJetpack() {
+    this.jetpackActive = false;
+  }
+
   update() {
     this.applyGravity();
     this.updateAnimationFrame();
@@ -219,10 +265,19 @@ export class Character extends GameEntity {
 
     if (this.lives <= 0) {
       this.gameOver = true;
-      setInterval(() => {
-        document.getElementById("gameCanvas")!.style.display = "none";
-        document.getElementById("splashScreen")!.style.display = "block";
-      }, 4000);
+      // // setInterval(() => {
+      // document.getElementById("gameCanvas")!.style.display = "none";
+      // document.getElementById("splashScreen")!.style.display = "block";
+      // // }, 2000);
+    }
+
+    if (this.jetpackActive && this.jetpackFuel > 0) {
+      this.velY -= this.jetpackThrust;
+
+      this.jetpackFuel -= 0.2;
+    }
+    if (this.jetpackFuel <= 0) {
+      this.deactivateJetpack();
     }
   }
 
@@ -365,8 +420,15 @@ export class Character extends GameEntity {
     }
 
     if (tile.type === "Gun") {
-      console.log("gun picked");
+      this.collectedItem.gun = true;
+      console.log("gun picked", this, this.collectedItem);
+
       this.utilityMessage = "gun picked (l)";
+    }
+
+    if (tile.type === "jetpack") {
+      console.log("jetpack reveived");
+      this.collectedItem.jetpack = true;
     }
   }
 
@@ -406,6 +468,7 @@ export class Character extends GameEntity {
   private respawn() {
     this.isDead = false;
     this.controlsEnabled = true;
+
     // this.explosionComplete = true;
     // this.posX = 100;
     // this.posY = 160;

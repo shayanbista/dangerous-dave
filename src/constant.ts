@@ -1,3 +1,4 @@
+import { Enemy } from "./Enemy";
 import { SolidTile } from "./tiles/SolidTile";
 import { EdibleTile } from "./tiles/edibleTIle";
 import { HarmingTile } from "./tiles/harmingTiles";
@@ -10,6 +11,7 @@ export const canvasHeight = 500;
 export const solidTiles: SolidTile[] = [];
 export const edibleTiles: EdibleTile[] = [];
 export const harmingTiles: HarmingTile[] = [];
+export const enemies: Enemy[] = [];
 
 export const TILES = {
   BlackTile: "B", // 0,0

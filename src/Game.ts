@@ -1,16 +1,18 @@
 import { Bullet } from "./Bullet";
 import { Character } from "./Character";
-import { TILE_SIZE, canvasHeight, canvasWidth, edibleTiles, harmingTiles, solidTiles } from "./constant";
+import { TILE_SIZE, canvasHeight, canvasWidth, edibleTiles, enemies, harmingTiles, solidTiles } from "./constant";
 import { Level_complete } from "./levels";
 import { Score } from "./Score";
 import { SolidTile } from "./tiles/SolidTile";
 import { EdibleTile } from "./tiles/edibleTIle";
 import { HarmingTile } from "./tiles/harmingTiles";
+import { Enemy } from "./Enemy";
 
 class Game {
   private gameCanvas: HTMLCanvasElement;
   private gameCtx: CanvasRenderingContext2D;
   private dave: Character;
+
   public score: Score | undefined;
   private currentLevel: number;
   private map: string[][];
@@ -50,7 +52,6 @@ class Game {
         this.togglePause();
       }
     });
-  
 
     this.initializeGame();
   }
@@ -69,8 +70,9 @@ class Game {
     this.gameCtx.fillRect(0, 0, this.gameCanvas.width, this.gameCanvas.height);
     this.gameCtx.font = "24px 'Press Start 2P'";
     this.gameCtx.fillStyle = "white";
-    this.gameCtx.textAlign = "center";
+    // this.gameCtx.textAlign = "center";
     this.gameCtx.fillText("Paused", this.gameCanvas.width / 2, this.gameCanvas.height / 2);
+
     this.gameCtx.fillText("Press P to resume again", this.gameCanvas.width / 1.8, this.gameCanvas.height / 1.5);
   }
 
@@ -129,7 +131,7 @@ class Game {
           let type: string;
 
           switch (tile) {
-            case "B":
+            case "Bl":
               [spriteX, spriteY] = [0, 5];
               type = "solid";
               break;
@@ -149,6 +151,7 @@ class Game {
               [spriteX, spriteY] = [4, 0];
               type = "solid";
               break;
+
             case "T":
               [spriteX, spriteY] = [5, 0];
               type = "solid";
@@ -160,6 +163,10 @@ class Game {
             case "D":
               [spriteX, spriteY] = [0, 1];
               type = "D";
+              break;
+            case "Sp":
+              [spriteX, spriteY] = [2, 5];
+              type = "Sp";
               break;
             case "RD":
               [spriteX, spriteY] = [1, 1];
@@ -180,6 +187,11 @@ class Game {
             case "C":
               [spriteX, spriteY] = [6, 1];
               type = "C";
+              break;
+
+            case "J":
+              [spriteX, spriteY] = [8, 1];
+              type = "jetpack";
               break;
             case "Y":
               [spriteX, spriteY] = [7, 1];
@@ -226,8 +238,12 @@ class Game {
               type === "Water" ? 3 : 4,
               10
             );
-
             harmingTiles.push(tile3);
+          } else if (type === "Sp") {
+            let tile3 = new Enemy(x * TILE_SIZE, y * TILE_SIZE);
+            console.log("tile spider", tile3);
+            enemies.push(tile3);
+            console.log("enemies", enemies);
           } else {
             let tile2 = new EdibleTile(
               spriteX,
@@ -238,7 +254,7 @@ class Game {
               64,
               64
             );
-          
+
             tile2.scorevalue();
             edibleTiles.push(tile2);
           }
@@ -289,18 +305,35 @@ class Game {
     for (const tile of harmingTiles) {
       tile.draw(this.gameCtx, tile.x - this.view.x, tile.y, TILE_SIZE, TILE_SIZE);
     }
+
+    for (const enemy of enemies) {
+      enemy.draw(this.gameCtx, this.view.x, this.view.y);
+    }
   }
 
   private renderGame() {
     this.renderTiles();
     this.dave.draw(this.gameCtx, this.view.x, this.view.y);
 
-    this.dave.bullets.filter((bullet, index) => {
+    // this.dave.bullets.forEach((bullet, index) => {
+    //   if (bullet.isActive) {
+    //     console.log("bullet", bullet);
+    //     console.log("bullet is active", index);
+    //     bullet.draw(this.gameCtx, this.view.x, this.view.y);
+    //     bullet.update();
+    //   }
+    // });
+    this.dave.bullets.forEach((bullet) => {
       if (bullet.isActive) {
-        console.log("bullet", bullet);
-        console.log("bullet is active", index);
-        bullet.draw(this.gameCtx, this.view.x, this.view.y, 1);
+        bullet.draw(this.gameCtx, this.view.x, this.view.y);
         bullet.update();
+        enemies.forEach((enemy, enemyIndex) => {
+          if (bullet.checkCollision(enemy)) {
+            console.log("bullet collided with the enemy");
+            bullet.isActive = false;
+            enemies.splice(enemyIndex, 1);
+          }
+        });
       }
     });
   }
@@ -319,15 +352,20 @@ class Game {
       this.gameCtx.fillStyle = "white ";
       this.gameCtx.textAlign = "center";
       this.gameCtx.fillText("Game Over", canvasWidth / 2, canvasHeight / 2);
-
       this.gameCtx.fillText(`Your total score is ${this.dave.score}`, canvasWidth / 1.9, canvasHeight / 1.5);
 
       return;
     }
+
+    enemies.forEach((enemy: Enemy) => {
+      enemy.update();
+    });
+
     this.scoreSection();
     this.footerSection();
     this.isInDoor();
     this.dave.update();
+
     this.renderGame();
 
     if (this.dave.reachedEndMap) {

@@ -36,12 +36,6 @@ export class CustomEditorLevel {
     this.errorDisplay = document.getElementById("errorDisplay")!;
     this.successDisplay = document.getElementById("successDisplay")!;
     this.currentTile = "B";
-    // this.levels = [
-    //   LEVEL1_MAP.map((row) => row.map((tile) => (tile === " " ? '' : tile))),
-    //   CustomMap.map((row) => row.map((tile) => (tile === " " ? '' : tile))),
-    //   CustomMap1.map((row) => row.map((tile) => (tile === " " ? '' : tile))),
-    //   Level_3Map.map((row) => row.map((tile) => (tile === " " ? '' : tile))),
-    // ];
     this.levels = [LEVEL1_MAP, CustomMap, CustomMap1];
     this.currentLevelIndex = 0;
     this.map = this.levels[this.currentLevelIndex];
