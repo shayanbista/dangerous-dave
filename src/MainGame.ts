@@ -1,5 +1,5 @@
 import { mainGameLevels } from "./levels";
-import { Game } from "./Game";
+import { Game } from "./Classes/Game";
 
 class MainGame {
   constructor() {

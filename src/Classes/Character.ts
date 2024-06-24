@@ -1,10 +1,10 @@
-import { GameEntity } from "./GameEntity";
-import { Tile } from "./tiles/tile";
-import { TILE_SIZE, canvasHeight, canvasWidth, harmingTiles, edibleTiles, solidTiles } from "./constant";
-import { SolidTile } from "./tiles/SolidTile";
-import { EdibleTile } from "./tiles/edibleTIle";
-import { HarmingTile } from "./tiles/harmingTiles";
+import { TILE_SIZE, edibleTiles, harmingTiles, solidTiles } from "../constant";
 import { Bullet } from "./Bullet";
+import { GameEntity } from "./GameEntity";
+import { SolidTile } from "./tiles/SolidTile";
+import { EdibleTile } from "./tiles/EdibleTile";
+import { HarmingTile } from "./tiles/HarmingTiles";
+import { Tile } from "./tiles/Tile";
 
 interface InputKeys {
   right: { hold: boolean };
@@ -248,6 +248,7 @@ export class Character extends GameEntity {
   activateJetpack() {
     if (this.collectedItem.jetpack && this.jetpackFuel > 0) {
       this.jetpackActive = true;
+      this.utilityMessage = "jetpack activated";
       console.log("remaining fuel", this.jetpackFuel);
     }
   }
@@ -367,30 +368,32 @@ export class Character extends GameEntity {
     }
   }
 
+
   private resolveTileCollision(tileRect: Rect) {
-    if (this.velX < 0) {
-      if (this.playerRect.left + this.velX < tileRect.right && this.playerRect.right > tileRect.right) {
+    const overlapX = Math.min(this.playerRect.right - tileRect.left, tileRect.right - this.playerRect.left);
+    const overlapY = Math.min(this.playerRect.bottom - tileRect.top, tileRect.bottom - this.playerRect.top);
+
+    if (overlapX < overlapY) {
+      if (
+        this.velX < 0 &&
+        this.playerRect.left + this.velX < tileRect.right &&
+        this.playerRect.right > tileRect.right
+      ) {
         this.posX = tileRect.right - this.horizontalHitBoxOffset;
         this.velX = 0;
-      }
-    }
-
-    if (this.velX > 0) {
-      if (this.playerRect.right + this.velX > tileRect.left && this.playerRect.left < tileRect.left) {
+      } else if (
+        this.velX > 0 &&
+        this.playerRect.right + this.velX > tileRect.left &&
+        this.playerRect.left < tileRect.left
+      ) {
         this.posX = tileRect.left + this.horizontalHitBoxOffset - TILE_SIZE;
         this.velX = 0;
       }
-    }
-
-    if (this.velY < 0) {
-      if (this.playerRect.top < tileRect.bottom && this.playerRect.bottom > tileRect.bottom) {
+    } else {
+      if (this.velY < 0 && this.playerRect.top < tileRect.bottom && this.playerRect.bottom > tileRect.bottom) {
         this.posY = tileRect.bottom;
         this.velY = 0;
-      }
-    }
-
-    if (this.velY > 0) {
-      if (this.playerRect.bottom > tileRect.top && this.playerRect.top < tileRect.top) {
+      } else if (this.velY > 0 && this.playerRect.bottom > tileRect.top && this.playerRect.top < tileRect.top) {
         this.posY = tileRect.top - TILE_SIZE;
         this.velY = 0;
         this.jumping = false;

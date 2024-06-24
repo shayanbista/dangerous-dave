@@ -1,11 +1,11 @@
 import { Bullet } from "./Bullet";
 import { Character } from "./Character";
-import { TILE_SIZE, canvasHeight, canvasWidth, edibleTiles, enemies, harmingTiles, solidTiles } from "./constant";
-import { Level_complete } from "./levels";
-import { Score } from "./Score";
+import { TILE_SIZE, canvasHeight, canvasWidth, edibleTiles, enemies, harmingTiles, solidTiles } from "../constant";
+import { Level_complete } from "../levels";
+import { Score } from "../Score";
 import { SolidTile } from "./tiles/SolidTile";
-import { EdibleTile } from "./tiles/edibleTIle";
-import { HarmingTile } from "./tiles/harmingTiles";
+import { EdibleTile } from "./tiles/EdibleTile";
+import { HarmingTile } from "./tiles/HarmingTiles";
 import { Enemy } from "./Enemy";
 
 class Game {

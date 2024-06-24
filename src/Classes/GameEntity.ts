@@ -1,8 +1,3 @@
-import { harmingTiles } from "./constant";
-import { SolidTile } from "./tiles/SolidTile";
-import { EdibleTile } from "./tiles/edibleTIle";
-import { HarmingTile } from "./tiles/harmingTiles";
-
 interface GameEntityProps {
   posX: number;
   posY: number;
@@ -22,5 +17,4 @@ export class GameEntity implements GameEntityProps {
   posY: number;
   width: number;
   height: number;
-
 }

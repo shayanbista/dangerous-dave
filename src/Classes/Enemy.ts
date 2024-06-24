@@ -1,6 +1,6 @@
 import { GameEntity } from "./GameEntity";
-import { TILE_SIZE } from "./constant";
-import { Tile } from "./tiles/tile";
+import { TILE_SIZE } from "../constant";
+import { Tile } from "./tiles/Tile";
 
 export class Enemy extends GameEntity {
   direction: number;

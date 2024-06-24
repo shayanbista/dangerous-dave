@@ -1,5 +1,5 @@
-import { SolidTile } from "./tiles/SolidTile";
-import { startEditor } from "./CustomEditorLevel";
+import { SolidTile } from "./Classes/tiles/SolidTile";
+import { startEditor } from "./Classes/CustomEditorLevel";
 import { MainGame } from "./MainGame";
 
 class SplashScreen {

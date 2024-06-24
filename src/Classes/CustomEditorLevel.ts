@@ -1,7 +1,7 @@
 import { SolidTile } from "./tiles/SolidTile";
-import { CustomMap, CustomMap1, LEVEL1_MAP, LEVEL_2_MAP, Level_3Map, Level_complete } from "./levels";
+import { CustomMap, CustomMap1, LEVEL1_MAP, LEVEL_2_MAP, Level_3Map, Level_complete } from "../levels";
 import { Game } from "./Game";
-import { Score } from "./Score";
+import { Score } from "../Score";
 
 const TILE_SIZE = 64;
 const DRAW_SIZE = 50;

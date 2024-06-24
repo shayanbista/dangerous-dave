@@ -1,7 +1,7 @@
-import { Enemy } from "./Enemy";
-import { SolidTile } from "./tiles/SolidTile";
-import { EdibleTile } from "./tiles/edibleTIle";
-import { HarmingTile } from "./tiles/harmingTiles";
+import { Enemy } from "./Classes/Enemy";
+import { SolidTile } from "./Classes/tiles/SolidTile";
+import { EdibleTile } from "./Classes/tiles/EdibleTile";
+import { HarmingTile } from "./Classes/tiles/HarmingTiles";
 
 export const TILE_SIZE = 50;
 export const DRAW_SIZE = 50;
@@ -13,7 +13,7 @@ export const edibleTiles: EdibleTile[] = [];
 export const harmingTiles: HarmingTile[] = [];
 export const enemies: Enemy[] = [];
 
-export const TILES = {
+export const tiles = {
   BlackTile: "B", // 0,0
   RedTile: "R", // 1,0
   PurpleTile: "P", // 2,0

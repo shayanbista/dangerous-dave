@@ -1,12 +1,47 @@
-export class Tile {
+interface ITileConfig {
+  i: number;
+  j: number;
+  x: number;
+  y: number;
+  type: string;
+  sw?: number;
+  sh?: number;
+}
+
+export class Tile implements ITileConfig {
   type: string;
   x: number;
   y: number;
-  constructor(x: number, y: number, type: string) {
+  size: number;
+  sw: number;
+  sh: number;
+  sx: number;
+  sy: number;
+  i: number = 0;
+  j: number = 0;
+
+  static image: HTMLImageElement;
+
+  constructor(x: number, y: number, type: string, i: number, j: number, sw?: number, sh?: number) {
     this.x = x;
     this.y = y;
     this.type = type;
+    this.size = 64;
+    this.sw = sw || this.size;
+    this.sh = sh || this.size;
+    this.sx = i * this.size;
+    this.sy = j * this.size;
+
+    if (!Tile.image) {
+      Tile.image = new Image();
+      Tile.image.src = "assets/sprites/tileset.png";
+    }
   }
+
+  draw(ctx: CanvasRenderingContext2D, x: number, y: number, dw: number = this.size, dh: number = this.size) {
+    ctx.drawImage(Tile.image, this.sx, this.sy, this.sw, this.sh, x, y, dw, dh);
+  }
+
   static size = 64;
   static types = {
     solid: ["B", "R", "P", "K", "L", "T"],
