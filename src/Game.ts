@@ -1,3 +1,4 @@
+import { Bullet } from "./Bullet";
 import { Character } from "./Character";
 import { TILE_SIZE, canvasHeight, canvasWidth, edibleTiles, harmingTiles, solidTiles } from "./constant";
 import { Level_complete } from "./levels";
@@ -49,7 +50,7 @@ class Game {
         this.togglePause();
       }
     });
-    console.log("map", this.levels);
+  
 
     this.initializeGame();
   }
@@ -237,7 +238,7 @@ class Game {
               64,
               64
             );
-            console.log("ediboe", tile2);
+          
             tile2.scorevalue();
             edibleTiles.push(tile2);
           }
@@ -293,6 +294,15 @@ class Game {
   private renderGame() {
     this.renderTiles();
     this.dave.draw(this.gameCtx, this.view.x, this.view.y);
+
+    this.dave.bullets.filter((bullet, index) => {
+      if (bullet.isActive) {
+        console.log("bullet", bullet);
+        console.log("bullet is active", index);
+        bullet.draw(this.gameCtx, this.view.x, this.view.y, 1);
+        bullet.update();
+      }
+    });
   }
 
   private gameLoop() {

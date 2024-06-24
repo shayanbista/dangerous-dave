@@ -105,7 +105,7 @@ export class CustomEditorLevel {
       let spriteX: number, spriteY: number;
       switch (key) {
         case "BlueBlock":
-          [spriteX, spriteY] = [0, 5];
+          [spriteX, spriteY] = [1, 5];
           break;
         case "RedTile":
           [spriteX, spriteY] = [1, 0];

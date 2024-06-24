@@ -4,6 +4,7 @@ import { TILE_SIZE, canvasHeight, canvasWidth, harmingTiles, edibleTiles, solidT
 import { SolidTile } from "./tiles/SolidTile";
 import { EdibleTile } from "./tiles/edibleTIle";
 import { HarmingTile } from "./tiles/harmingTiles";
+import { Bullet } from "./Bullet";
 
 interface InputKeys {
   right: { hold: boolean };
@@ -56,8 +57,13 @@ export class Character extends GameEntity {
 
   readonly horizontalHitBoxOffset = 5;
   readonly verticalHitBoxOffset = 5;
+  isShooting: boolean;
+  canshoot: boolean;
+  lastShotTime: number;
+  shootCooldown: number;
+  bullets: Bullet[];
 
-  constructor({ posX, posY}: CharacterProps) {
+  constructor({ posX, posY }: CharacterProps) {
     super({
       posX,
       posY,
@@ -91,6 +97,12 @@ export class Character extends GameEntity {
     this.isDead = false;
     this.gameOver = false;
     this.collectedItem = { key: false, door: false, gun: false, jetpack: false };
+    this.isShooting = true;
+    this.canshoot = true;
+
+    this.bullets = [];
+    this.lastShotTime = 0;
+    this.shootCooldown = 3000;
 
     this.spriteImage = new Image();
     this.spriteImage.src = "assets/sprites/tileset.png";
@@ -122,6 +134,23 @@ export class Character extends GameEntity {
       case "ArrowUp":
         this.keys.up.hold = hold;
         break;
+      case "l":
+        console.log("key l is pressed");
+        this.shoot();
+        break;
+    }
+  }
+
+  private shoot() {
+    const currentTime = Date.now();
+    if (currentTime - this.lastShotTime >= this.shootCooldown) {
+      const bullet = new Bullet(this.posX, this.posY, this, 5, this.direction);
+      console.log("bullet", bullet);
+
+      bullet.isActive = true;
+      this.bullets.push(bullet);
+      this.lastShotTime = currentTime;
+      this.isShooting = true;
     }
   }
 
