@@ -1,7 +1,7 @@
 import { SolidTile } from "./tiles/SolidTile";
-import { level2Map, LEVEL1_MAP } from "../levels";
+import { level2Map, level1Map } from "../levels";
 import { Game } from "./Game/GameEngine";
-import { tileConfig } from "../tileConfig";
+import { tileProperties } from "./tiles/tileProperties";
 import { Tile } from "./tiles/Tile";
 import { TILE_SIZE } from "../constant";
 
@@ -36,7 +36,7 @@ export class MapEditor {
     this.errorMsg = document.getElementById("errorDisplay")!;
     this.successMsg = document.getElementById("successDisplay")!;
     this.selectedTile = "B";
-    this.levels = [LEVEL1_MAP, level2Map];
+    this.levels = [level1Map, level2Map];
     this.levelIndex = 0;
     this.map = this.levels[this.levelIndex];
 
@@ -117,7 +117,7 @@ export class MapEditor {
   }
   // tile sprite values
   private getTileCoordinates(key: string): [number, number] {
-    const config = tileConfig[key] || tileConfig.default;
+    const config = tileProperties[key];
     return [config.spriteX, config.spriteY];
   }
 

@@ -1,4 +1,4 @@
-export const LEVEL1_MAP = [
+export const level1Map = [
   ["R", "R", "R", "R", "R", "R", "R", "R", "R", "R", "R", "R", "R", "R", "R", "R", "R", "R", "R", "K"],
   ["R", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "RD", "R", "K"],
   ["R", " ", " ", "D", " ", " ", " ", "D", " ", " ", " ", "Y", " ", " ", " ", "D", " ", " ", "R", "K"],
@@ -180,4 +180,4 @@ export const S5 = [
   ["K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "Y", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "F", "F", "F", "F", "F", "F", "F"],
 ];
 
-export const mainGameLevels = [LEVEL1_MAP, level2Map, S4];
+export const mainGameLevels = [level1Map];

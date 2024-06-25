@@ -1,14 +1,19 @@
 import { Character } from "../Character";
-import { TILE_SIZE, canvasHeight, canvasWidth, edibleTiles, enemies, harmingTiles, solidTiles } from "../../constant";
+import { TILE_SIZE, canvasHeight, canvasWidth } from "../../constant";
 import { Level_complete } from "../../levels";
 import { Score } from "../Score";
 import { SolidTile } from "../tiles/SolidTile";
 import { EdibleTile } from "../tiles/EdibleTile";
 import { HarmingTile } from "../tiles/HarmingTiles";
 import { Enemy } from "../Enemy";
-import { tileConfig } from "../../tileConfig";
+import { tileProperties } from "../tiles/tileProperties";
 import { combineMaps, distance } from "../../utility";
 import { Bullet } from "../Bullet";
+interface Tiles {
+  solid: SolidTile[];
+  edible: EdibleTile[];
+  harming: HarmingTile[];
+}
 
 class Game {
   private gameCanvas: HTMLCanvasElement;
@@ -26,6 +31,14 @@ class Game {
   private frameCount: number = 0;
   private levels: string[][][];
   combinedLevelMap: string[][];
+
+  private tiles: Tiles = {
+    solid: [],
+    edible: [],
+    harming: [],
+  };
+
+  private enemies: Enemy[] = [];
 
   constructor(levels: string[][][]) {
     this.gameCanvas = document.getElementById("gameCanvas") as HTMLCanvasElement;
@@ -51,7 +64,7 @@ class Game {
       height: canvasHeight,
     };
 
-    this.dave = new Character({ posX: 0, posY: 0 });
+    this.dave = new Character({ posX: 0, posY: 0 }, this.tiles);
     this.totalScore = 0;
     window.addEventListener("keydown", (event) => {
       if (event.key === "p") {
@@ -110,10 +123,13 @@ class Game {
     for (let y = 0; y < this.map.length; y++) {
       for (let x = 0; x < this.map[y].length; x++) {
         if (this.map[y][x] === "DA") {
-          this.dave = new Character({
-            posX: x * TILE_SIZE,
-            posY: y * TILE_SIZE + this.scoreboardHeight,
-          });
+          this.dave = new Character(
+            {
+              posX: x * TILE_SIZE,
+              posY: y * TILE_SIZE + this.scoreboardHeight,
+            },
+            this.tiles
+          );
 
           this.dave.score = this.totalScore;
           this.dave.initalposX = x * TILE_SIZE;
@@ -124,20 +140,23 @@ class Game {
   }
 
   private initializeTiles(map: string[][]) {
-    solidTiles.length = 0;
-    edibleTiles.length = 0;
-    harmingTiles.length = 0;
+    this.tiles.solid.length = 0;
+    this.tiles.edible.length = 0;
+    this.tiles.harming.length = 0;
 
     for (let y = 0; y < map.length; y++) {
       for (let x = 0; x < map[y].length; x++) {
         if (map[y][x] && map[y][x] !== "DA") {
           const tileKey = map[y][x];
-          const config = tileConfig[tileKey] || tileConfig["default"];
+          const config = tileProperties[tileKey] || tileProperties["default"];
+          console.log("properties", tileProperties[tileKey]);
+          console.log("key", tileKey);
+          console.log(tileProperties["default"], config);
           let { spriteX, spriteY, type } = config;
 
           if (type === "solid") {
             let tile1 = new SolidTile(spriteX, spriteY, x * TILE_SIZE, y * TILE_SIZE + this.scoreboardHeight, 64, 64);
-            solidTiles.push(tile1);
+            this.tiles.solid.push(tile1);
           } else if (type === "Fire" || type === "Tentacles" || type === "Water") {
             let tile3 = new HarmingTile(
               spriteX,
@@ -150,10 +169,10 @@ class Game {
               type === "Water" ? 3 : 4,
               10
             );
-            harmingTiles.push(tile3);
+            this.tiles.harming.push(tile3);
           } else if (type === "Sp") {
             let tile3 = new Enemy(x * TILE_SIZE, y * TILE_SIZE);
-            enemies.push(tile3);
+            this.enemies.push(tile3);
           } else {
             let tile2 = new EdibleTile(
               spriteX,
@@ -166,11 +185,34 @@ class Game {
             );
 
             tile2.scorevalue();
-            edibleTiles.push(tile2);
+            this.tiles.edible.push(tile2);
           }
         }
       }
     }
+  }
+
+  private displayGameOverRectangle() {
+    const canvasWidth = this.gameCtx.canvas.width;
+    const canvasHeight = this.gameCtx.canvas.height;
+    const rectWidth = 300;
+    const rectHeight = 150;
+    const rectX = (canvasWidth - rectWidth) / 2;
+    const rectY = (canvasHeight - rectHeight) / 2;
+
+    this.gameCtx.fillStyle = "rgba(0, 0, 0, 0.75)";
+    this.gameCtx.fillRect(rectX, rectY, rectWidth, rectHeight);
+
+    this.gameCtx.strokeStyle = "white";
+    this.gameCtx.lineWidth = 5;
+    this.gameCtx.strokeRect(rectX, rectY, rectWidth, rectHeight);
+
+    this.gameCtx.fillStyle = "white";
+    this.gameCtx.font = "20px Arial";
+    this.gameCtx.textAlign = "center";
+    this.gameCtx.fillText("Game Over", canvasWidth / 2, rectY + 40);
+    this.gameCtx.fillText(`Total Score: ${this.totalScore}`, canvasWidth / 2, rectY + 80);
+    this.gameCtx.fillText("Thank you for playing!", canvasWidth / 2, rectY + 120);
   }
 
   private isInDoor() {
@@ -184,7 +226,7 @@ class Game {
           this.loadlevel();
         }
       } else {
-        console.log("all levels completed");
+        this.displayGameOverRectangle();
       }
     }
   }
@@ -202,20 +244,20 @@ class Game {
     const viewPortWidth = TILE_SIZE * 19;
     this.view.x = Math.floor(this.dave.posX / viewPortWidth) * viewPortWidth;
 
-    for (const tile of solidTiles) {
+    for (const tile of this.tiles.solid) {
       tile.draw(this.gameCtx, tile.x - this.view.x, tile.y, TILE_SIZE, TILE_SIZE);
     }
-    for (const tile of edibleTiles) {
+    for (const tile of this.tiles.edible) {
       if (!tile.consumed) {
         tile.draw(this.gameCtx, tile.x - this.view.x, tile.y, TILE_SIZE, TILE_SIZE);
       }
     }
 
-    for (const tile of harmingTiles) {
+    for (const tile of this.tiles.harming) {
       tile.draw(this.gameCtx, tile.x - this.view.x, tile.y, TILE_SIZE, TILE_SIZE);
     }
 
-    for (const enemy of enemies) {
+    for (const enemy of this.enemies) {
       enemy.draw(this.gameCtx, this.view.x, this.view.y);
     }
   }
@@ -228,11 +270,11 @@ class Game {
       if (bullet.isActive) {
         bullet.draw(this.gameCtx, this.view.x, this.view.y);
         bullet.update();
-        enemies.forEach((enemy, enemyIndex) => {
+        this.enemies.forEach((enemy, enemyIndex) => {
           if (bullet.checkCollision(enemy)) {
             bullet.isActive = false;
             this.dave.sound.playerDeathAudio.play();
-            enemies.splice(enemyIndex, 1);
+            this.enemies.splice(enemyIndex, 1);
           }
         });
       }
@@ -258,7 +300,7 @@ class Game {
       return;
     }
 
-    enemies.forEach((enemy: Enemy) => {
+    this.enemies.forEach((enemy: Enemy) => {
       if (distance(enemy, this.dave) < 900) {
         enemy.update();
         enemy.bullets.forEach((bullet: Bullet) => {

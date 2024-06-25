@@ -1,10 +1,10 @@
-export interface TileConfig {
+interface TileProps {
   spriteX: number;
   spriteY: number;
   type: string;
 }
 
-export const tileConfig: { [key: string]: TileConfig } = {
+export const tileProperties: Record<string, TileProps> = {
   Bl: { spriteX: 0, spriteY: 5, type: "solid" },
   R: { spriteX: 1, spriteY: 0, type: "solid" },
   P: { spriteX: 2, spriteY: 0, type: "solid" },

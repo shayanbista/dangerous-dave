@@ -1,8 +1,8 @@
 import { SolidTile } from "./tiles/SolidTile";
 import { startEditor } from "./CustomEditorLevel";
 import { MainGame } from "./MainGame";
-import { gameState } from "../constant";
 
+let gameState = { NOT_STARTED: true, RUNNING: false, ENDED: false, editorNotStarted: false };
 class SplashScreen {
   private ctx: CanvasRenderingContext2D;
   private bannerImage: HTMLImageElement;
