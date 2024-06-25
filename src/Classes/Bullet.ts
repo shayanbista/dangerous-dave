@@ -3,14 +3,16 @@ import { GameEntity } from "./GameEntity";
 import { TILE_SIZE } from "../constant";
 import { Tile } from "./tiles/Tile";
 import { Enemy } from "./Enemy";
+import { Direction } from "../utility";
 
 export class Bullet extends GameEntity {
   vel: number;
   user: Character | Enemy;
-  direction: any;
+  direction: Direction;
   bulletImage: HTMLImageElement;
   isActive: boolean;
-  constructor(posX: number, posY: number, user: Character | Enemy, vel: number, direction: number) {
+
+  constructor(posX: number, posY: number, user: Character | Enemy, vel: number, direction: Direction) {
     super({
       posX,
       posY,

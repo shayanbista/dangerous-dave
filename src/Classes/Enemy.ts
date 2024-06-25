@@ -2,10 +2,11 @@ import { GameEntity } from "./GameEntity";
 import { TILE_SIZE } from "../constant";
 import { Tile } from "./tiles/Tile";
 import { Bullet } from "./Bullet";
+import { Direction } from "../utility";
 export class Enemy extends GameEntity {
-  direction: number;
+  direction: Direction;
   enemyImage: HTMLImageElement;
-  movementState: any;
+  movementState: number;
   initialPosX: number;
   initialPosY: number;
   counter: number;

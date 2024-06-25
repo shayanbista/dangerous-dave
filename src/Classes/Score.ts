@@ -12,9 +12,9 @@ export class Score {
       this.ctx.fillText(`Level: ${level}`, 400, 30);
       this.ctx.fillText(`Lives: ${lives}`, 800, 30);
     } else {
-      this.ctx.fillStyle = "white";
-      this.ctx.font = "24px 'Press Start 2P'";
-      this.ctx.fillText(message, 10, 30);
+      this.ctx.fillStyle = "#90ee90";
+      this.ctx.font = "bold 24px 'Press Start 2P'";
+      this.ctx.fillText(message, 80, 30);
     }
   }
 }
