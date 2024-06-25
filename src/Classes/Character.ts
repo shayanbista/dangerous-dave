@@ -67,7 +67,7 @@ export class Character extends GameEntity {
   private jetpackThrust: number;
   private jetpackFuel: number;
   private maxJetpackFuel: number;
-  // private jetpackImage: HTMLImageElement;
+  autoMove: any;
 
   constructor({ posX, posY }: CharacterProps) {
     super({
@@ -235,6 +235,7 @@ export class Character extends GameEntity {
   moveCharacterAutomatically() {
     this.moveAutomatically = true;
     this.velX = 3;
+    console.log("position X", this.posX);
 
     this.direction = 1;
     this.controlsEnabled = false;
@@ -266,10 +267,6 @@ export class Character extends GameEntity {
 
     if (this.lives <= 0) {
       this.gameOver = true;
-      // // setInterval(() => {
-      // document.getElementById("gameCanvas")!.style.display = "none";
-      // document.getElementById("splashScreen")!.style.display = "block";
-      // // }, 2000);
     }
 
     if (this.jetpackActive && this.jetpackFuel > 0) {
@@ -367,7 +364,6 @@ export class Character extends GameEntity {
       this.resolveTileCollision(tileRect);
     }
   }
-
 
   private resolveTileCollision(tileRect: Rect) {
     const overlapX = Math.min(this.playerRect.right - tileRect.left, tileRect.right - this.playerRect.left);

@@ -1,9 +1,9 @@
 import { SolidTile } from "./tiles/SolidTile";
-import { CustomMap, CustomMap1, LEVEL1_MAP, LEVEL_2_MAP, Level_3Map, Level_complete } from "../levels";
-import { Game } from "./Game";
-import { Score } from "../Score";
+import { CombinedLevelMap, CustomMap, CustomMap1, LEVEL1_MAP } from "../levels";
+import { Game } from "./Game/GameEngine";
+import { tileConfig } from "../tileConfig"; // Import the tile configuration
+import { Tile } from "./tiles/Tile";
 
-const TILE_SIZE = 64;
 const DRAW_SIZE = 50;
 
 export class CustomEditorLevel {
@@ -19,7 +19,7 @@ export class CustomEditorLevel {
   private currentTile: string;
   private map: string[][];
   private tilesetImage: HTMLImageElement;
-  // TODO conver this levels any to type
+  // TODO convert this levels any to type
   private levels: string[][][];
   private currentLevelIndex: number;
 
@@ -36,7 +36,7 @@ export class CustomEditorLevel {
     this.errorDisplay = document.getElementById("errorDisplay")!;
     this.successDisplay = document.getElementById("successDisplay")!;
     this.currentTile = "B";
-    this.levels = [LEVEL1_MAP, CustomMap, CustomMap1];
+    this.levels = [LEVEL1_MAP, CustomMap, CombinedLevelMap];
     this.currentLevelIndex = 0;
     this.map = this.levels[this.currentLevelIndex];
 
@@ -96,68 +96,15 @@ export class CustomEditorLevel {
         tileBox.classList.add("selected");
       }
 
-      let spriteX: number, spriteY: number;
-      switch (key) {
-        case "BlueBlock":
-          [spriteX, spriteY] = [1, 5];
-          break;
-        case "RedTile":
-          [spriteX, spriteY] = [1, 0];
-          break;
-        case "PurpleTile":
-          [spriteX, spriteY] = [2, 0];
-          break;
-        case "RockTile":
-          [spriteX, spriteY] = [3, 0];
-          break;
-        case "Gun":
-          [spriteX, spriteY] = [3, 1];
-          break;
-        case "Steel":
-          [spriteX, spriteY] = [4, 8];
-          break;
-        case "Diamond":
-          [spriteX, spriteY] = [0, 1];
-          break;
-        case "RedDiamond":
-          [spriteX, spriteY] = [1, 1];
-          break;
-        case "Dave":
-          [spriteX, spriteY] = [0, 2];
-          break;
-        case "Fire":
-          [spriteX, spriteY] = [0, 5];
-          break;
-        case "Tentacles":
-          [spriteX, spriteY] = [0, 6];
-          break;
-        case "Key":
-          [spriteX, spriteY] = [5, 1];
-          break;
-        case "Water":
-          [spriteX, spriteY] = [0, 7];
-          break;
-        case "Trophy":
-          [spriteX, spriteY] = [7, 1];
-          break;
-        case "Jetpack":
-          [spriteX, spriteY] = [8, 1];
-          break;
-        case "ExitDoor":
-          [spriteX, spriteY] = [1, 8];
-          break;
-        default:
-          [spriteX, spriteY] = [0, 0];
-          break;
-      }
+      const [spriteX, spriteY] = this.getTileCoordinates(TILES[key]);
 
-      const sprite = new SolidTile(spriteX, spriteY, index, 0, TILE_SIZE, TILE_SIZE);
+      const sprite = new SolidTile(spriteX, spriteY, index, 0, Tile.size, Tile.size);
 
       const tileCanvas = document.createElement("canvas");
-      tileCanvas.width = TILE_SIZE;
-      tileCanvas.height = TILE_SIZE;
+      tileCanvas.width = Tile.size;
+      tileCanvas.height = Tile.size;
       const ctx = tileCanvas.getContext("2d")!;
-      sprite.draw(ctx, 0, 0, TILE_SIZE, TILE_SIZE);
+      sprite.draw(ctx, 0, 0, Tile.size, Tile.size);
 
       tileBox.appendChild(tileCanvas);
       this.tileSelector.appendChild(tileBox);
@@ -171,72 +118,14 @@ export class CustomEditorLevel {
   }
 
   private getTileCoordinates(key: string): [number, number] {
-    let coordinates: [number, number];
-    switch (key) {
-      case "B": // BlackTile
-        coordinates = [0, 0];
-        break;
-      case "R": // RedTile
-        coordinates = [1, 0];
-        break;
-      case "P": // PurpleTile
-        coordinates = [2, 0];
-        break;
-      case "K": // RockTile
-        coordinates = [3, 0];
-        break;
-      case "G": // LavaTile
-        coordinates = [3, 1];
-        break;
-      case "T": // BlueBlock
-        coordinates = [5, 0];
-        break;
-      case "D": // Diamond
-        coordinates = [0, 1];
-        break;
-      case "RD": // RedDiamond
-        coordinates = [1, 1];
-        break;
-      case "DA": // Dave
-        coordinates = [0, 2];
-        break;
-      case "F": // Fire
-        coordinates = [0, 5];
-        break;
-      case "TE": // Tentacles
-        coordinates = [0, 6];
-        break;
-      case "W": // Water
-        coordinates = [0, 7];
-        break;
-      case "Key": // Key
-        coordinates = [5, 1];
-        break;
-      case "Y": // Trophy
-        coordinates = [7, 1];
-        break;
-      case "S": // steel
-        coordinates = [4, 8];
-        break;
-      case "J": // Jetpack
-        coordinates = [8, 1];
-        break;
-      case "E": // ExitDoor
-        coordinates = [1, 8];
-        break;
-      default:
-        coordinates = [0, 0];
-        break;
-    }
-
-    return coordinates;
+    const config = tileConfig[key] || tileConfig.default;
+    return [config.spriteX, config.spriteY];
   }
 
   public drawMap() {
     this.mapCtx.clearRect(0, 0, this.mapCanvas.width, this.mapCanvas.height);
     this.drawScoreArea();
     this.drawFooterArea();
-    console.log("map length", this.map.length);
     for (let y = 0; y < this.map.length; y++) {
       for (let x = 0; x < this.map[y].length; x++) {
         if (this.map[y][x]) {
@@ -266,7 +155,7 @@ export class CustomEditorLevel {
     if (tile !== " ") {
       const [spriteX, spriteY] = this.getTileCoordinates(tile);
 
-      const sprite = new SolidTile(spriteX, spriteY, TILE_SIZE, TILE_SIZE);
+      const sprite = new SolidTile(spriteX, spriteY, Tile.size, Tile.size);
 
       sprite.draw(this.mapCtx, x, y, DRAW_SIZE, DRAW_SIZE);
     }
@@ -278,7 +167,6 @@ export class CustomEditorLevel {
     const y = Math.floor((e.clientY - rect.top) / DRAW_SIZE) - 1;
 
     if (y >= 0 && y < this.map.length) {
-      console.log("currenttile", this.currentTile);
       this.map[y][x] = this.currentTile;
       this.drawMap();
     }
@@ -320,7 +208,6 @@ export class CustomEditorLevel {
       this.output.value = JSON.stringify(this.map.map((row) => row.map((tile) => (tile ? tile : null))));
       this.successDisplay.innerText = "Map saved successfully.";
       this.levels[this.currentLevelIndex] = this.map;
-      console.log("levels", this.levels);
       this.drawGameCanvas();
     } else {
       errorMessages.forEach((msg) => {
@@ -332,8 +219,6 @@ export class CustomEditorLevel {
   }
 
   prevLevel() {
-    console.log("currentIndex", this.currentLevelIndex);
-    console.log("i am clicked left");
     if (this.currentLevelIndex > 0) {
       this.currentLevelIndex--;
       this.map = this.levels[this.currentLevelIndex];
@@ -344,14 +229,9 @@ export class CustomEditorLevel {
   }
 
   nextLevel() {
-    console.log("i am clicked right");
-    console.log("levels length", this.levels.length);
     if (this.currentLevelIndex < this.levels.length - 1) {
       this.currentLevelIndex++;
-      console.log("index", this.currentLevelIndex);
       this.map = this.levels[this.currentLevelIndex];
-      console.log("drawingmap", this.map);
-      console.log("current Index", this.currentLevelIndex);
       this.drawMap();
     } else {
       console.log("Already at the last level");

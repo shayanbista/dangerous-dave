@@ -1,12 +1,13 @@
-import { Bullet } from "./Bullet";
-import { Character } from "./Character";
-import { TILE_SIZE, canvasHeight, canvasWidth, edibleTiles, enemies, harmingTiles, solidTiles } from "../constant";
-import { Level_complete } from "../levels";
-import { Score } from "../Score";
-import { SolidTile } from "./tiles/SolidTile";
-import { EdibleTile } from "./tiles/EdibleTile";
-import { HarmingTile } from "./tiles/HarmingTiles";
-import { Enemy } from "./Enemy";
+import { Bullet } from "../Bullet";
+import { Character } from "../Character";
+import { TILE_SIZE, canvasHeight, canvasWidth, edibleTiles, enemies, harmingTiles, solidTiles } from "../../constant";
+import { Level_complete } from "../../levels";
+import { Score } from "../../Score";
+import { SolidTile } from "../tiles/SolidTile";
+import { EdibleTile } from "../tiles/EdibleTile";
+import { HarmingTile } from "../tiles/HarmingTiles";
+import { Enemy } from "../Enemy";
+import { tileConfig } from "../../tileConfig";
 
 class Game {
   private gameCanvas: HTMLCanvasElement;
@@ -30,7 +31,6 @@ class Game {
     this.gameCanvas.style.background = "black";
     this.gameCanvas.style.display = "block";
     document.getElementById("editor")!.style.display = "none";
-    // TODO :increase the canvas height
     this.gameCanvas.height += this.scoreboardHeight;
     this.currentLevel = 0;
     this.levels = levels;
@@ -70,9 +70,7 @@ class Game {
     this.gameCtx.fillRect(0, 0, this.gameCanvas.width, this.gameCanvas.height);
     this.gameCtx.font = "24px 'Press Start 2P'";
     this.gameCtx.fillStyle = "white";
-    // this.gameCtx.textAlign = "center";
     this.gameCtx.fillText("Paused", this.gameCanvas.width / 2, this.gameCanvas.height / 2);
-
     this.gameCtx.fillText("Press P to resume again", this.gameCanvas.width / 1.8, this.gameCanvas.height / 1.5);
   }
 
@@ -97,7 +95,6 @@ class Game {
       this.gameCanvas.width,
       this.scoreboardHeight
     );
-
     this.gameCtx.fillStyle = "white";
     this.gameCtx.font = "bold 24px Arial";
     this.gameCtx.fillText(this.dave.utilityMessage, 400, this.gameCanvas.height - 20);
@@ -126,102 +123,9 @@ class Game {
     for (let y = 0; y < map.length; y++) {
       for (let x = 0; x < map[y].length; x++) {
         if (map[y][x] && map[y][x] !== "DA") {
-          const tile = map[y][x]!;
-          let spriteX: number, spriteY: number;
-          let type: string;
-
-          switch (tile) {
-            case "Bl":
-              [spriteX, spriteY] = [0, 5];
-              type = "solid";
-              break;
-            case "R":
-              [spriteX, spriteY] = [1, 0];
-              type = "solid";
-              break;
-            case "P":
-              [spriteX, spriteY] = [2, 0];
-              type = "solid";
-              break;
-            case "K":
-              [spriteX, spriteY] = [3, 0];
-              type = "solid";
-              break;
-            case "L":
-              [spriteX, spriteY] = [4, 0];
-              type = "solid";
-              break;
-
-            case "T":
-              [spriteX, spriteY] = [5, 0];
-              type = "solid";
-              break;
-            case "S":
-              [spriteX, spriteY] = [4, 8];
-              type = "solid";
-              break;
-            case "D":
-              [spriteX, spriteY] = [0, 1];
-              type = "D";
-              break;
-            case "Sp":
-              [spriteX, spriteY] = [2, 5];
-              type = "Sp";
-              break;
-            case "RD":
-              [spriteX, spriteY] = [1, 1];
-              type = "RD";
-              break;
-            case "G":
-              [spriteX, spriteY] = [3, 1];
-              type = "Gun";
-              break;
-            case "RNG":
-              [spriteX, spriteY] = [4, 1];
-              type = "RNG";
-              break;
-            case "Key":
-              [spriteX, spriteY] = [5, 1];
-              type = "Key";
-              break;
-            case "C":
-              [spriteX, spriteY] = [6, 1];
-              type = "C";
-              break;
-
-            case "J":
-              [spriteX, spriteY] = [8, 1];
-              type = "jetpack";
-              break;
-            case "Y":
-              [spriteX, spriteY] = [7, 1];
-              type = "Y";
-              break;
-            case "J":
-              [spriteX, spriteY] = [8, 1];
-              type = "J";
-              break;
-            case "E":
-              [spriteX, spriteY] = [1, 8];
-              type = "door";
-              break;
-            case "F":
-              [spriteX, spriteY] = [0, 5];
-              type = "Fire";
-              break;
-            case "TE":
-              [spriteX, spriteY] = [0, 6];
-              type = "Tentacles";
-              break;
-            case "W":
-              [spriteX, spriteY] = [0, 7];
-              type = "Water";
-              break;
-            default:
-              [spriteX, spriteY] = [0, 0];
-              type = "pickable";
-              break;
-          }
+          const tileKey = map[y][x];
+          const config = tileConfig[tileKey] || tileConfig["default"];
+          let { spriteX, spriteY, type } = config;
 
           if (type === "solid") {
             let tile1 = new SolidTile(spriteX, spriteY, x * TILE_SIZE, y * TILE_SIZE + this.scoreboardHeight, 64, 64);
@@ -241,9 +145,7 @@ class Game {
             harmingTiles.push(tile3);
           } else if (type === "Sp") {
             let tile3 = new Enemy(x * TILE_SIZE, y * TILE_SIZE);
-            console.log("tile spider", tile3);
             enemies.push(tile3);
-            console.log("enemies", enemies);
           } else {
             let tile2 = new EdibleTile(
               spriteX,
@@ -315,21 +217,12 @@ class Game {
     this.renderTiles();
     this.dave.draw(this.gameCtx, this.view.x, this.view.y);
 
-    // this.dave.bullets.forEach((bullet, index) => {
-    //   if (bullet.isActive) {
-    //     console.log("bullet", bullet);
-    //     console.log("bullet is active", index);
-    //     bullet.draw(this.gameCtx, this.view.x, this.view.y);
-    //     bullet.update();
-    //   }
-    // });
-    this.dave.bullets.forEach((bullet) => {
+    this.dave.bullets.forEach((bullet: Bullet) => {
       if (bullet.isActive) {
         bullet.draw(this.gameCtx, this.view.x, this.view.y);
         bullet.update();
         enemies.forEach((enemy, enemyIndex) => {
           if (bullet.checkCollision(enemy)) {
-            console.log("bullet collided with the enemy");
             bullet.isActive = false;
             enemies.splice(enemyIndex, 1);
           }

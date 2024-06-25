@@ -1,3 +1,5 @@
+
+
 interface GameEntityProps {
   posX: number;
   posY: number;

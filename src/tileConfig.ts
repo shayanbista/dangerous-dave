@@ -1,31 +1,3 @@
-import { Enemy } from "./Classes/Enemy";
-import { SolidTile } from "./Classes/tiles/SolidTile";
-import { EdibleTile } from "./Classes/tiles/EdibleTile";
-import { HarmingTile } from "./Classes/tiles/HarmingTiles";
-
-export const TILE_SIZE = 50;
-export const DRAW_SIZE = 50;
-export const canvasWidth = 1000;
-export const canvasHeight = 500;
-
-export const solidTiles: SolidTile[] = [];
-export const edibleTiles: EdibleTile[] = [];
-export const harmingTiles: HarmingTile[] = [];
-export const enemies: Enemy[] = [];
-
-export const tileValues = {
-  D: 50,
-  RD: 100,
-  PD: 150,
-  G: 200,
-  RNG: 300,
-  Key: 500,
-  C: 1000,
-  Y: 2000,
-  J: 3000,
-  E: 4000,
-};
-
 export interface TileConfig {
   spriteX: number;
   spriteY: number;
@@ -53,5 +25,6 @@ export const tileConfig: { [key: string]: TileConfig } = {
   F: { spriteX: 0, spriteY: 5, type: "Fire" },
   TE: { spriteX: 0, spriteY: 6, type: "Tentacles" },
   W: { spriteX: 0, spriteY: 7, type: "Water" },
+  DA: { spriteX: 0, spriteY: 2, type: "DA" },
   default: { spriteX: 0, spriteY: 0, type: "pickable" },
 };

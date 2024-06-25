@@ -56,14 +56,4 @@ export class Bullet extends GameEntity {
 
     return bulletLeft < entityRight && bulletRight > entityLeft && bulletTop < entityBottom && bulletBottom > entityTop;
   }
-
-  // shoot() {
-  //   const currentTime = Date.now();
-  //   const bullet = new Bullet(this.posX, this.posY, this.user, 5, this.direction);
-  //   console.log("bullet", bullet);
-  //   bullet.isActive = true;
-  //   // this.bullets.push(bullet);
-  //   // this.lastShotTime = currentTime;
-  //   // this.isShooting = true;
-  // }
 }
