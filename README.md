@@ -31,3 +31,4 @@ npm run dev
  - Dave has powerups like guns and jetpacks
  - Dave loses his life if he touches fire,water,etc.
  - Custom level maker(users can modify the level)
+ - Press P to pause and same for resuming the game
