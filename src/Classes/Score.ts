@@ -1,18 +1,10 @@
 export class Score {
   private ctx: CanvasRenderingContext2D;
-  private score: number;
-
   constructor(ctx: CanvasRenderingContext2D) {
-    this.score = 0;
     this.ctx = ctx;
   }
 
-  updateDisplay(
-    score: number,
-    level: number,
-    lives: number,
-    message: string | null
-  ) {
+  updateDisplay(score: number, level: number, lives: number, message: string | null) {
     if (message == null) {
       this.ctx.fillStyle = "#90ee90";
       this.ctx.font = "bold 18px 'Press Start 2P'";

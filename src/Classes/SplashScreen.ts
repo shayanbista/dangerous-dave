@@ -1,5 +1,5 @@
-import { SolidTile } from "./Classes/tiles/SolidTile";
-import { startEditor } from "./Classes/CustomEditorLevel";
+import { SolidTile } from "./tiles/SolidTile";
+import { startEditor } from "./CustomEditorLevel";
 import { MainGame } from "./MainGame";
 
 class SplashScreen {
@@ -136,7 +136,6 @@ export function initializeSplashScreen() {
   window.addEventListener("keydown", (e) => {
     if (e.key === "s" || e.key === "S") {
       new MainGame();
-
       document.getElementById("splashScreen")!.style.display = "none";
     } else if (e.code === "Space") {
       document.getElementById("splashScreen")!.style.display = "none";

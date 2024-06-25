@@ -53,6 +53,7 @@ export class Character extends GameEntity {
   explosionFrame: number;
   isDead: boolean;
   gameOver: boolean;
+
   collectedItem: { [key: string]: boolean };
 
   readonly horizontalHitBoxOffset = 5;
@@ -66,8 +67,8 @@ export class Character extends GameEntity {
   private jetpackActive: boolean;
   private jetpackThrust: number;
   private jetpackFuel: number;
-  private maxJetpackFuel: number;
-  autoMove: any;
+  initalposX: number;
+  initalposY: number;
 
   constructor({ posX, posY }: CharacterProps) {
     super({
@@ -108,7 +109,8 @@ export class Character extends GameEntity {
     this.jetpackActive = false;
     this.jetpackThrust = 0.5;
     this.jetpackFuel = 100;
-    this.maxJetpackFuel = 100;
+    this.initalposX = posX;
+    this.initalposY = posY;
 
     this.bullets = [];
     this.lastShotTime = 0;
@@ -145,11 +147,9 @@ export class Character extends GameEntity {
         this.keys.up.hold = hold;
         break;
       case "l":
-        console.log("key l is pressed");
         this.shoot();
         break;
       case "x":
-        console.log("key X is pressed");
         if (hold) this.activateJetpack();
         else this.deactivateJetpack();
         break;
@@ -157,7 +157,6 @@ export class Character extends GameEntity {
   }
 
   private shoot() {
-    console.log("can fire", this.collectedItem.key);
     if (this.collectedItem.gun === true) {
       const currentTime = Date.now();
       if (currentTime - this.lastShotTime >= this.shootCooldown) {
@@ -235,7 +234,6 @@ export class Character extends GameEntity {
   moveCharacterAutomatically() {
     this.moveAutomatically = true;
     this.velX = 3;
-    console.log("position X", this.posX);
 
     this.direction = 1;
     this.controlsEnabled = false;
@@ -250,7 +248,6 @@ export class Character extends GameEntity {
     if (this.collectedItem.jetpack && this.jetpackFuel > 0) {
       this.jetpackActive = true;
       this.utilityMessage = "jetpack activated";
-      console.log("remaining fuel", this.jetpackFuel);
     }
   }
 
@@ -317,8 +314,6 @@ export class Character extends GameEntity {
   }
 
   handleCollision() {
-    const keyExists = edibleTiles.some((tile) => tile.type === "Y");
-
     this.grounded = false;
     this.colliding = false;
 
@@ -334,7 +329,7 @@ export class Character extends GameEntity {
       this.isDoor = false;
 
       if (isColliding(this.playerRect, tileRect)) {
-        this.handleEdibleTileCollision(tile, keyExists, i);
+        this.handleEdibleTileCollision(tile, i);
       }
     }
     for (let tile of harmingTiles) {
@@ -398,7 +393,7 @@ export class Character extends GameEntity {
     }
   }
 
-  private handleEdibleTileCollision(tile: EdibleTile, crownExists: boolean, index: number) {
+  private handleEdibleTileCollision(tile: EdibleTile, index: number) {
     this.score += tile.value;
     if (tile.type === "Y") {
       this.collectedItem.key = true;
@@ -420,26 +415,28 @@ export class Character extends GameEntity {
 
     if (tile.type === "Gun") {
       this.collectedItem.gun = true;
-      console.log("gun picked", this, this.collectedItem);
 
       this.utilityMessage = "gun picked (l)";
     }
 
     if (tile.type === "jetpack") {
-      console.log("jetpack reveived");
       this.collectedItem.jetpack = true;
     }
+  }
+
+  loselife() {
+    this.controlsEnabled = false;
+    this.isDead = true;
+    this.lives -= 1;
+    this.handleExplosion();
+    // this.invisible=true;
   }
 
   private handleHarmingTileCollision(tile: HarmingTile) {
     const tileRect = this.getTileRect(tile);
     if (isColliding(this.playerRect, tileRect)) {
       if (this.lives > 0 && !this.isDead) {
-        // this.controlsEnabled = false;
-        this.isDead = true;
-        this.lives -= 1;
-
-        // this.handleExplosion();
+        this.loselife();
       } else {
         console.log("Gameover");
       }
@@ -467,10 +464,8 @@ export class Character extends GameEntity {
   private respawn() {
     this.isDead = false;
     this.controlsEnabled = true;
-
-    // this.explosionComplete = true;
-    // this.posX = 100;
-    // this.posY = 160;
+    this.posX = this.initalposX;
+    this.posY = this.initalposY;
 
     this.jumping = false;
     this.grounded = false;

@@ -28,7 +28,7 @@ export class HarmingTile extends Tile {
 
   updateAnimationFrame() {
     this.frameCounter++;
-    console.log("framecount", this.frameCount);
+
     if (this.frameCounter >= this.frameDelay) {
       this.frameIndex = (this.frameIndex + 1) % this.frameCount;
       this.frameCounter = 0;

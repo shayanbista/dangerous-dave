@@ -1,4 +1,4 @@
-import { initializeSplashScreen } from "./SplashScreen";
+import { initializeSplashScreen } from "./Classes/SplashScreen";
 
 window.onload = () => {
   document.getElementById("editor")!.style.display = "none";

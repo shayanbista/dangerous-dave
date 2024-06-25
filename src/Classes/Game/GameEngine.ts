@@ -1,13 +1,14 @@
-import { Bullet } from "../Bullet";
 import { Character } from "../Character";
 import { TILE_SIZE, canvasHeight, canvasWidth, edibleTiles, enemies, harmingTiles, solidTiles } from "../../constant";
 import { Level_complete } from "../../levels";
-import { Score } from "../../Score";
+import { Score } from "../Score";
 import { SolidTile } from "../tiles/SolidTile";
 import { EdibleTile } from "../tiles/EdibleTile";
 import { HarmingTile } from "../tiles/HarmingTiles";
 import { Enemy } from "../Enemy";
 import { tileConfig } from "../../tileConfig";
+import { distance } from "../../utility";
+import { Bullet } from "../Bullet";
 
 class Game {
   private gameCanvas: HTMLCanvasElement;
@@ -108,8 +109,10 @@ class Game {
             posX: x * TILE_SIZE,
             posY: y * TILE_SIZE + this.scoreboardHeight,
           });
+
           this.dave.score = this.totalScore;
-          return;
+          this.dave.initalposX = x * TILE_SIZE;
+          this.dave.initalposY = y * TILE_SIZE;
         }
       }
     }
@@ -186,7 +189,6 @@ class Game {
     this.initializeTiles(this.map);
     this.setCharacterPosition();
     this.dave.isDoor = false;
-
     this.gameCtx.clearRect(0, 0, this.gameCanvas.width, this.gameCanvas.height);
     this.renderGame();
   }
@@ -251,7 +253,18 @@ class Game {
     }
 
     enemies.forEach((enemy: Enemy) => {
-      enemy.update();
+      if (distance(enemy, this.dave) < 900) {
+        enemy.update();
+        enemy.bullets.forEach((bullet: Bullet) => {
+          if (bullet.isActive) {
+            if (bullet.checkCollision(this.dave)) {
+              console.log("dave collided");
+              bullet.isActive = false;
+              this.dave.loselife();
+            }
+          }
+        });
+      }
     });
 
     this.scoreSection();
@@ -282,11 +295,12 @@ class Game {
       this.map = Level_complete;
       this.isLevelComplete = true;
       this.initializeTiles(this.map);
-      this.setCharacterPosition();
+      console.log("character postion", this.setCharacterPosition());
       this.dave.isDoor = false;
 
       this.gameCtx.clearRect(0, 0, this.gameCanvas.width, this.gameCanvas.height);
       this.renderGame();
+
       this.dave.moveCharacterAutomatically();
     }
   }

@@ -1,5 +1,3 @@
-
-
 interface GameEntityProps {
   posX: number;
   posY: number;
@@ -14,7 +12,6 @@ export class GameEntity implements GameEntityProps {
     this.width = width;
     this.height = height;
   }
-
   posX: number;
   posY: number;
   width: number;

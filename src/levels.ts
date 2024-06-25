@@ -63,6 +63,7 @@ export const Level_complete = [
   [" ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "],
 ];
 
+
 export const Level_3Map = [
   ["F", "R", "P", "R", "P", "P", "R", "P", "P", "R", "P", "R", "P", "R", "P", "R", "R", "P", "P", "P"],
   ["F", "RD", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "TE", "TE", "TE", "TE", "Y"],
@@ -180,4 +181,4 @@ export const CombinedLevelMap = [
   ["R", "R", "R", "F", "F", "F", "F", "F", "R", "F", "F", "F", "F", "R", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "R", "R", "R", "R", "R", "R", "R", "R", "R", "R", "R", "R", "R", "R", "R", "R", "R", "R", "R", "R", "R", "F", "F", "F", "F", "F", "F", "F", "F", "F", "F", "F"],
 ];
 
-export const mainGameLevels = [Level_3MapCombined];
+export const mainGameLevels = [LEVEL1_MAP, CombinedLevelMap, Level_3MapCombined];

@@ -1,10 +1,11 @@
 import { SolidTile } from "./tiles/SolidTile";
-import { CombinedLevelMap, CustomMap, CustomMap1, LEVEL1_MAP } from "../levels";
+import { CombinedLevelMap, CustomMap, LEVEL1_MAP } from "../levels";
 import { Game } from "./Game/GameEngine";
-import { tileConfig } from "../tileConfig"; // Import the tile configuration
+import { tileConfig } from "../tileConfig";
 import { Tile } from "./tiles/Tile";
+import { TILE_SIZE } from "../constant";
 
-const DRAW_SIZE = 50;
+const DRAW_SIZE = TILE_SIZE;
 
 export class CustomEditorLevel {
   private mapCanvas: HTMLCanvasElement;
@@ -19,7 +20,6 @@ export class CustomEditorLevel {
   private currentTile: string;
   private map: string[][];
   private tilesetImage: HTMLImageElement;
-  // TODO convert this levels any to type
   private levels: string[][][];
   private currentLevelIndex: number;
 
@@ -97,9 +97,7 @@ export class CustomEditorLevel {
       }
 
       const [spriteX, spriteY] = this.getTileCoordinates(TILES[key]);
-
       const sprite = new SolidTile(spriteX, spriteY, index, 0, Tile.size, Tile.size);
-
       const tileCanvas = document.createElement("canvas");
       tileCanvas.width = Tile.size;
       tileCanvas.height = Tile.size;
@@ -154,9 +152,7 @@ export class CustomEditorLevel {
   drawTile(tile: string, x: number, y: number) {
     if (tile !== " ") {
       const [spriteX, spriteY] = this.getTileCoordinates(tile);
-
       const sprite = new SolidTile(spriteX, spriteY, Tile.size, Tile.size);
-
       sprite.draw(this.mapCtx, x, y, DRAW_SIZE, DRAW_SIZE);
     }
   }
