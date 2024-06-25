@@ -1,6 +1,7 @@
 import { SolidTile } from "./tiles/SolidTile";
 import { startEditor } from "./CustomEditorLevel";
 import { MainGame } from "./MainGame";
+import { gameState } from "../constant";
 
 class SplashScreen {
   private ctx: CanvasRenderingContext2D;
@@ -135,11 +136,23 @@ export function initializeSplashScreen() {
 
   window.addEventListener("keydown", (e) => {
     if (e.key === "s" || e.key === "S") {
-      new MainGame();
+      if (gameState.NOT_STARTED) {
+        new MainGame();
+        gameState.RUNNING = true;
+        gameState.NOT_STARTED = false;
+        console.log("gamestate", gameState);
+      } else {
+        console.log("already initialzed");
+      }
       document.getElementById("splashScreen")!.style.display = "none";
     } else if (e.code === "Space") {
-      document.getElementById("splashScreen")!.style.display = "none";
-      startEditor();
+      if (gameState.RUNNING) {
+        console.log("cant open");
+      } else {
+        gameState.editorNotStarted = false;
+        document.getElementById("splashScreen")!.style.display = "none";
+        startEditor();
+      }
     }
   });
 }

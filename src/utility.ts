@@ -14,3 +14,19 @@ export function isColliding(rect1: Rect, rect2: Rect): boolean {
 export function distance(enemy: Enemy, player: Character) {
   return Math.sqrt(Math.pow(enemy.posX - player.posX, 2) + Math.pow(enemy.posY - player.posY, 2));
 }
+
+
+export function combineMaps(...maps: string[][][]): string[][] {
+  const combinedMap: string[][] = [];
+  const numRows = maps[0].length;
+
+  for (let row = 0; row < numRows; row++) {
+    let combinedRow: string[] = [];
+    for (let map of maps) {
+      combinedRow = combinedRow.concat(map[row]);
+    }
+    combinedMap.push(combinedRow);
+  }
+
+  return combinedMap;
+}

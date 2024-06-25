@@ -5,6 +5,7 @@ import { SolidTile } from "./tiles/SolidTile";
 import { EdibleTile } from "./tiles/EdibleTile";
 import { HarmingTile } from "./tiles/HarmingTiles";
 import { Tile } from "./tiles/Tile";
+import { Sound } from "./Sounds";
 
 interface InputKeys {
   right: { hold: boolean };
@@ -53,6 +54,8 @@ export class Character extends GameEntity {
   explosionFrame: number;
   isDead: boolean;
   gameOver: boolean;
+
+  sound: Sound = new Sound();
 
   collectedItem: { [key: string]: boolean };
 
@@ -161,11 +164,11 @@ export class Character extends GameEntity {
       const currentTime = Date.now();
       if (currentTime - this.lastShotTime >= this.shootCooldown) {
         const bullet = new Bullet(this.posX, this.posY, this, 5, this.direction);
-        console.log("bullet", bullet);
 
         bullet.isActive = true;
         this.bullets.push(bullet);
         this.lastShotTime = currentTime;
+        this.sound.playerShootAudio.play();
         this.isShooting = true;
       }
     } else {
@@ -175,6 +178,8 @@ export class Character extends GameEntity {
 
   draw(ctx: CanvasRenderingContext2D, viewX: number, viewY: number) {
     if (this.jetpackActive) {
+      this.sound.doorAudio1.play();
+      // this.sound.introAudio.play();
       let spriteX = this.direction == 1 ? 6 : 5;
       let spriteY = 4 * 64;
       ctx.drawImage(
@@ -300,16 +305,28 @@ export class Character extends GameEntity {
     if (this.keys.left.hold) {
       this.velX = -4;
       this.direction = -1;
+      if (this.grounded) {
+        this.sound.walkRigthtAudio.play();
+      }
     }
-
     if (this.keys.right.hold) {
       this.velX = 4;
       this.direction = 1;
+      if (this.grounded) {
+        this.sound.walkRigthtAudio.play();
+      }
     }
-
     if (this.keys.up.hold && this.grounded) {
       this.velY = this.JUMP_SPEED;
+      this.sound.playerJump.play();
       this.grounded = false;
+    }
+
+    if (!this.grounded) {
+      this.sound.walkLefttAudio.pause();
+      this.sound.walkRigthtAudio.pause();
+      this.sound.walkLefttAudio.currentTime = 0;
+      this.sound.walkRigthtAudio.currentTime = 0;
     }
   }
 
@@ -398,14 +415,19 @@ export class Character extends GameEntity {
     if (tile.type === "Y") {
       this.collectedItem.key = true;
       this.utilityMessage = "Go through the door";
+      this.sound.KeyAudio.play();
       tile.consumed = true;
     }
 
+    if (tile.type == "D" || tile.type == "RD") {
+      this.sound.pickupAudio.play();
+    }
     if (tile.type === "door") {
       if (this.collectedItem.key === true) {
         tile.consumed = false;
         this.isDoor = true;
         this.collectedItem.door = true;
+        this.sound.doorAudio.play();
       } else {
         this.utilityMessage = "Take the key to go through the door";
       }
@@ -415,7 +437,6 @@ export class Character extends GameEntity {
 
     if (tile.type === "Gun") {
       this.collectedItem.gun = true;
-
       this.utilityMessage = "gun picked (l)";
     }
 
@@ -429,7 +450,6 @@ export class Character extends GameEntity {
     this.isDead = true;
     this.lives -= 1;
     this.handleExplosion();
-    // this.invisible=true;
   }
 
   private handleHarmingTileCollision(tile: HarmingTile) {
@@ -479,6 +499,7 @@ export class Character extends GameEntity {
     const totalDuration = 2000;
     const explosionFrameCount = 4;
     const intervalDuration = 150;
+    this.sound.playerDeathAudio.play();
 
     const interval = setInterval(() => {
       if (this.frameCounter >= totalDuration / intervalDuration) {

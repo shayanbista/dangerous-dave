@@ -4,6 +4,7 @@ import { Game } from "./Game/GameEngine";
 import { tileConfig } from "../tileConfig";
 import { Tile } from "./tiles/Tile";
 import { TILE_SIZE } from "../constant";
+import { combineMaps } from "../utility";
 
 const DRAW_SIZE = TILE_SIZE;
 
@@ -36,7 +37,7 @@ export class CustomEditorLevel {
     this.errorDisplay = document.getElementById("errorDisplay")!;
     this.successDisplay = document.getElementById("successDisplay")!;
     this.currentTile = "B";
-    this.levels = [LEVEL1_MAP, CustomMap, CombinedLevelMap];
+    this.levels = [LEVEL1_MAP, CombinedLevelMap];
     this.currentLevelIndex = 0;
     this.map = this.levels[this.currentLevelIndex];
 
@@ -85,6 +86,7 @@ export class CustomEditorLevel {
       Water: "W",
       Trophy: "Y",
       Jetpack: "J",
+
       ExitDoor: "E",
     };
 

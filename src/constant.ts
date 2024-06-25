@@ -31,6 +31,7 @@ export interface TileConfig {
   spriteY: number;
   type: string;
 }
+export const gameState = { NOT_STARTED: true, RUNNING: false, ENDED: false, editorNotStarted: false };
 
 export const tileConfig: { [key: string]: TileConfig } = {
   Bl: { spriteX: 0, spriteY: 5, type: "solid" },

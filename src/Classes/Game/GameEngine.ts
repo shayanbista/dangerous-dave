@@ -7,7 +7,7 @@ import { EdibleTile } from "../tiles/EdibleTile";
 import { HarmingTile } from "../tiles/HarmingTiles";
 import { Enemy } from "../Enemy";
 import { tileConfig } from "../../tileConfig";
-import { distance } from "../../utility";
+import { combineMaps, distance } from "../../utility";
 import { Bullet } from "../Bullet";
 
 class Game {
@@ -25,6 +25,7 @@ class Game {
   private totalScore: number;
   private frameCount: number = 0;
   private levels: string[][][];
+  combinedLevelMap: string[][];
 
   constructor(levels: string[][][]) {
     this.gameCanvas = document.getElementById("gameCanvas") as HTMLCanvasElement;
@@ -38,6 +39,10 @@ class Game {
     this.score = new Score(this.gameCtx);
     this.isLevelComplete = false;
     this.map = this.levels[this.currentLevel];
+    console.log("map", this.map);
+
+    this.combinedLevelMap = combineMaps(...levels);
+    console.log(this.combinedLevelMap);
     this.paused = false;
     this.view = {
       x: 0,
@@ -226,6 +231,7 @@ class Game {
         enemies.forEach((enemy, enemyIndex) => {
           if (bullet.checkCollision(enemy)) {
             bullet.isActive = false;
+            this.dave.sound.playerDeathAudio.play();
             enemies.splice(enemyIndex, 1);
           }
         });
