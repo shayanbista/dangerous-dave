@@ -1,10 +1,9 @@
 import { SolidTile } from "./tiles/SolidTile";
-import { CombinedLevelMap, CustomMap, LEVEL1_MAP } from "../levels";
+import { level2Map, LEVEL1_MAP } from "../levels";
 import { Game } from "./Game/GameEngine";
 import { tileConfig } from "../tileConfig";
 import { Tile } from "./tiles/Tile";
 import { TILE_SIZE } from "../constant";
-import { combineMaps } from "../utility";
 
 const TILE_DRAW_SIZE = TILE_SIZE;
 
@@ -37,7 +36,7 @@ export class MapEditor {
     this.errorMsg = document.getElementById("errorDisplay")!;
     this.successMsg = document.getElementById("successDisplay")!;
     this.selectedTile = "B";
-    this.levels = [LEVEL1_MAP, CombinedLevelMap];
+    this.levels = [LEVEL1_MAP, level2Map];
     this.levelIndex = 0;
     this.map = this.levels[this.levelIndex];
 
