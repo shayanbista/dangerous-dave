@@ -54,7 +54,6 @@ export class Character extends GameEntity {
   explosionFrame: number;
   isDead: boolean;
   gameOver: boolean;
-
   sound: Sound = new Sound();
 
   collectedItem: { [key: string]: boolean };

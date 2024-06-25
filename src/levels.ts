@@ -1,3 +1,5 @@
+import { combineMaps } from "./utility";
+
 export const LEVEL1_MAP = [
   ["R", "R", "R", "R", "R", "R", "R", "R", "R", "R", "R", "R", "R", "R", "R", "R", "R", "R", "R", "K"],
   ["R", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "RD", "R", "K"],
@@ -258,4 +260,4 @@ export const S5 = [
   ["K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "Y", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "K", "F", "F", "F", "F", "F", "F", "F"],
 ];
 
-export const mainGameLevels = [LEVEL1_MAP];
+export const mainGameLevels = [LEVEL1_MAP, CombinedLevelMap];
