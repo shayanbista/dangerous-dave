@@ -13,7 +13,7 @@ export const tileProperties: Record<string, TileProps> = {
   T: { spriteX: 5, spriteY: 0, type: "solid" },
   S: { spriteX: 4, spriteY: 8, type: "solid" },
   D: { spriteX: 0, spriteY: 1, type: "D" },
-  Sp: { spriteX: 2, spriteY: 5, type: "Sp" },
+  Sp: { spriteX: 2, spriteY: 10, type: "Sp"},
   RD: { spriteX: 1, spriteY: 1, type: "RD" },
   G: { spriteX: 3, spriteY: 1, type: "Gun" },
   RNG: { spriteX: 4, spriteY: 1, type: "RNG" },

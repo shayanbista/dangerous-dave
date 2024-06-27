@@ -259,7 +259,7 @@ class Game {
     button.style.fontSize = "16px";
     document.body.appendChild(button);
     button.addEventListener("click", () => {
-      window.location.reload(); // Reload the page to go back to the splash screen
+      window.location.reload(); 
     });
   }
 

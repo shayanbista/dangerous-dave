@@ -1,5 +1,5 @@
 import { SolidTile } from "./tiles/SolidTile";
-import { CustomMap1, level1Map } from "../levels";
+import { CustomMap1, level1Map, level2Map } from "../levels";
 import { Game } from "./Game/GameEngine";
 import { tileProperties } from "./tiles/tileProperties";
 import { Tile } from "./tiles/Tile";
@@ -36,7 +36,7 @@ export class MapEditor {
     this.errorMsg = document.getElementById("errorDisplay")!;
     this.successMsg = document.getElementById("successDisplay")!;
     this.selectedTile = "B";
-    this.levels = [CustomMap1, level1Map];
+    this.levels = [CustomMap1, level1Map, level2Map];
     this.levelIndex = 0;
     this.map = this.levels[this.levelIndex];
 
@@ -85,6 +85,7 @@ export class MapEditor {
       Key: "Key",
       Water: "W",
       Trophy: "Y",
+      Sp: "Sp",
       Jetpack: "J",
       ExitDoor: "E",
     };
