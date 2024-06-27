@@ -207,6 +207,7 @@ export class MapEditor {
       this.output.value = JSON.stringify(this.map.map((row) => row.map((tile) => (tile ? tile : null))));
       this.successMsg.innerText = "Map saved successfully.";
       this.levels[this.levelIndex] = this.map;
+      console.log("output value", this.output.value);
       this.startGame();
     } else {
       errors.forEach((msg) => {

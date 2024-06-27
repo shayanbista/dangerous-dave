@@ -273,7 +273,8 @@ class Game {
           this.currentLevel++;
           this.loadlevel();
         }
-      } else {
+      } 
+      else {
         this.displayAllLevelsComplete();
       }
     }
