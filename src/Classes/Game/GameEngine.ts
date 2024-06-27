@@ -1,4 +1,3 @@
-
 import { Character } from "../Character";
 import { TILE_SIZE, canvasHeight, canvasWidth } from "../../constant";
 import { Level_complete } from "../../levels";
@@ -228,39 +227,8 @@ class Game {
   }
 
   private displayAllLevelsComplete() {
-    const canvasWidth = this.gameCtx.canvas.width;
-    const canvasHeight = this.gameCtx.canvas.height;
-    const rectWidth = 300;
-    const rectHeight = 150;
-    const rectX = (canvasWidth - rectWidth) / 2;
-    const rectY = (canvasHeight - rectHeight) / 2;
-
-    this.gameCtx.fillStyle = "rgba(0, 0, 0, 0.75)";
-    this.gameCtx.fillRect(rectX, rectY, rectWidth, rectHeight);
-
-    this.gameCtx.strokeStyle = "white";
-    this.gameCtx.lineWidth = 5;
-    this.gameCtx.strokeRect(rectX, rectY, rectWidth, rectHeight);
-
-    this.gameCtx.fillStyle = "white";
-    this.gameCtx.font = "20px Arial";
-    this.gameCtx.textAlign = "center";
-    this.gameCtx.fillText("All Levels Complete!", canvasWidth / 2, rectY + 40);
-    this.gameCtx.fillText(`Total Score: ${this.totalScore}`, canvasWidth / 2, rectY + 80);
-    this.gameCtx.fillText("Thank you for playing!", canvasWidth / 2, rectY + 120);
-
-    // Button to return to splash screen
-    const button = document.createElement("button");
-    button.innerText = "Return to Splash Screen";
-    button.style.position = "absolute";
-    button.style.top = `${rectY + rectHeight + 20}px`;
-    button.style.left = `${rectX + rectWidth / 2 - 75}px`;
-    button.style.padding = "10px 20px";
-    button.style.fontSize = "16px";
-    document.body.appendChild(button);
-    button.addEventListener("click", () => {
-      window.location.reload(); 
-    });
+    window.alert("all levels completed");
+    window.location.reload();
   }
 
   private isInDoor() {
@@ -273,8 +241,7 @@ class Game {
           this.currentLevel++;
           this.loadlevel();
         }
-      } 
-      else {
+      } else {
         this.displayAllLevelsComplete();
       }
     }
